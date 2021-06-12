@@ -1,9 +1,0 @@
-* on api "book" pages, show warning if the manga is allready subscribed to.
-* mangatoo.com
-* zuttomanga.com
-* mangatone.com
-* latestmanga.net
-* manhuascan.com
-* manga's should be able to be merged and split up again.
-? being able to save link/refs to online manga's. to be able to trac and notify about updates, without needing to download the images.
-* hide chapters if they have 0 elements and have a duplicate chapter name in manga.
