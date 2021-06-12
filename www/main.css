@@ -1,0 +1,19 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    color:#888;
+}
+
+body > div {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
+}
+
+div > div {
+    width: 150px;
+    height: 100px;
+    background-color:#2a2a2a;
+}

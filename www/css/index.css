@@ -1,0 +1,7 @@
+.poster {
+    width: 150px;
+    height: 230px;
+    display: inline-block;
+    background-color: rgba(0, 0, 0, 0.2);
+    background-size: contain;
+}

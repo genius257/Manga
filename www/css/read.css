@@ -1,0 +1,45 @@
+html, body {margin: 0;padding: 0;}
+body {padding: 50px 0;}
+#previous, #next {
+    width: 50px;
+    height:100vh;
+    position: fixed;
+    top:0;
+}
+#previous {
+    left: 0;
+    border-right: 1px solid #000;
+}
+#previous::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 30px 15px 0;
+    border-color: transparent #000000 transparent transparent;
+    display: block;
+    position: fixed;
+    top: 50vh;
+    left: 10px;
+}
+#next {
+    right: 0;
+    border-left: 1px solid #000;
+}
+#next::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 0 15px 30px;
+    border-color: transparent transparent transparent #000000;
+    display: block;
+    top: 50vh;
+    position: fixed;
+    right: 10px;
+}
+
+img {
+    margin: 0 auto;
+    display: block;
+}
