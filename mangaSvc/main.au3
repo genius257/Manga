@@ -94,7 +94,7 @@ Func processQueueEntry()
     TrayTip("Processing entry", $sApiId & @CRLF & $sUrl, 10, $TIP_ICONASTERISK)
     Local $hQuery
     Local $aRow
-    _SQLite_Query($hDB, "SELECT id FROM manga WHERE api = ? AND url = ? LIMIT 1", $hQuery)
+    _SQLite_Query($hDB, "SELECT id, pathId FROM manga WHERE api = ? AND url = ? LIMIT 1", $hQuery)
     _SQLite_Bind_Text($hQuery, 1, $sApiId)
     _SQLite_Bind_Text($hQuery, 2, $sUrl)
     Local $bExists = _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
@@ -110,6 +110,8 @@ Func processQueueEntry()
         ;_SQLite_QueryReset($hQuery)
         _SQLite_QueryFinalize($hQuery)
         $mangaId = _SQLite_LastInsertRowID($hDB)
+    Else
+        $sPathId = $aRow[1]
     EndIf
 
     Call("_"&$sApiId&"_sync", $sUrl, $sPathId, $mangaId)
