@@ -12,6 +12,7 @@ $REQUEST_URI = EnvGet("REQUEST_URI")
 $sURL = "https://www.taadd.com" & $REQUEST_URI
 
 If StringRight($REQUEST_URI, 11) = "/subscribe/" Then $sURL = StringMid($sURL, 1, StringLen($sURL)-11)
+If StringLeft($REQUEST_URI, 8) = '/search/' Then $sURL = StringRegExpReplace($sURL, "//www.", "//my.") & "?" & EnvGet("QUERY_STRING")
 
 HttpSetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36")
 $bResponse = InetRead($sURL, 1 + 2 + 8 + 16)
@@ -45,5 +46,6 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
     EndIf
 Else
     $sResponse = StringRegExpReplace($sResponse, '(?i)<a ([^>]*)href="(https?:)?(\/\/)?(www.)?taadd.com\/', '<a $1href="/api/taadd/')
+    $sResponse = StringRegExpReplace($sResponse, 'action="(https?:)?(\/\/)?(my.)?taadd.com\/', 'action="/api/taadd/')
     ConsoleWrite($sResponse)
 EndIf
