@@ -1,6 +1,7 @@
 #include "..\..\Server.au3"
 #include "..\..\AutoIt-HTML-Parser-master\HTMLParser.au3"
 #include "..\..\mangaSvc\api.au3"
+#include <SQLite.au3>
 
 ConsoleWrite("X-Powered-By: AutoIt/"&@AutoItVersion&@LF)
 ConsoleWrite("Content-type: text/html; charset=UTF-8"&@LF)
@@ -38,6 +39,17 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
     Else
         ConsoleWrite("<html><head></head><body>")
         ConsoleWrite("<h1>"&$name&"</h1>")
+
+        _SQLite_Startup(@ScriptDir & "\..\..\mangaSvc\sqlite3.dll", False, 1)
+        $hDB = _SQLite_Open(@ScriptDir & "\..\..\mangaSvc\database.sqlite3")
+        Local $hQuery, $aRow
+        _SQLite_Query($hDB, "SELECT id FROM manga WHERE api = ? AND url = ? LIMIT 1", $hQuery)
+        _SQLite_Bind_Text($hQuery, 1, "taadd")
+        _SQLite_Bind_Text($hQuery, 2, $REQUEST_URI)
+        If _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK Then
+            ConsoleWrite("<h2>NOTICE: you have already subscribed to this manga.</h2>")
+        EndIf
+
         ConsoleWrite('<a href=".'&StringMid($REQUEST_URI, 6)&'/subscribe/">subscribe</a>')
         ConsoleWrite('<img src="'&$posterImage&'"/>')
         ;ConsoleWrite(__HTMLParser_GetString(__doublyLinkedList_Node($aTables[2]).data))
@@ -49,3 +61,17 @@ Else
     $sResponse = StringRegExpReplace($sResponse, 'action="(https?:)?(\/\/)?(my.)?taadd.com\/', 'action="/api/taadd/')
     ConsoleWrite($sResponse)
 EndIf
+
+Func _SQLite_Bind_Text($hQuery, $iRowID, $sTextRow)
+    Local $iRval = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_bind_text16", _
+            "ptr", $hQuery, _
+            "int", $iRowID, _
+            "wstr", $sTextRow, _
+            "int", -1, _
+            "ptr", NULL)
+    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
+    If $iRval[0] <> $SQLITE_OK Then
+        Return SetError(-1, 0, $iRval[0])
+    EndIf
+    Return $iRval[0]
+EndFunc
