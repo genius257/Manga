@@ -65,17 +65,30 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
 
         DirCreate($outputDir & $sChapter)
 
-        _SQLite_Query($hDB, "INSERT INTO chapter (manga_id, name, pathId, date_added) VALUES (?, ?, ?, ?)", $hQuery)
-
+        Local $hQuery
+        _SQLite_Query($hDB, "SELECT id FROM chapter WHERE manga_id = ? AND name = ? AND pathId = ? AND date_added = ? LIMIT 1", $hQuery)
         _SQLite_Bind_Int($hQuery, 1, $mangaId)
         _SQLite_Bind_Text($hQuery, 2, $text)
         _SQLite_Bind_Text($hQuery, 3, $sChapter)
         _SQLite_Bind_Text($hQuery, 4, $sDateAdded)
 
-        _SQLite_Step($hQuery)
-        ;_SQLite_QueryReset($hQuery)
-        _SQLite_QueryFinalize($hQuery)
-        $chapterId = _SQLite_LastInsertRowID($hDB)
+        Local $aRow
+        Local $bExists = _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
+
+        If Not $bExists Then
+            _SQLite_Query($hDB, "INSERT INTO chapter (manga_id, name, pathId, date_added) VALUES (?, ?, ?, ?)", $hQuery)
+            _SQLite_Bind_Int($hQuery, 1, $mangaId)
+            _SQLite_Bind_Text($hQuery, 2, $text)
+            _SQLite_Bind_Text($hQuery, 3, $sChapter)
+            _SQLite_Bind_Text($hQuery, 4, $sDateAdded)
+
+            _SQLite_Step($hQuery)
+            ;_SQLite_QueryReset($hQuery)
+            _SQLite_QueryFinalize($hQuery)
+            Local $chapterId = _SQLite_LastInsertRowID($hDB)
+        Else
+            Local $chapterId = $aRow[0]
+        EndIf
 
         _taadd_download_chapter($href, $outputDir & $sChapter & "\", $chapterId)
     Next
