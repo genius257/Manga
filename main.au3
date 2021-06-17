@@ -68,8 +68,12 @@ Func MyHandler($hSocket, $sRequest)
     $aUrl = StringRegExp($sRequest, "(?i)^GET /api/([^/ ]+)(/[^ ]+)?", 1)
     If @error <> 0 Then
         Local $error = @error
+        If $error = 1 Then
+            _HTTP_Server_Request_Handle($hSocket, $sRequest)
+            Return
+        EndIf
         _HTTP_SendHeaders($hSocket)
-        _HTTP_SendContent($hSocket,  $error = 1 ? "API" : "API URL Error")
+        _HTTP_SendContent($hSocket,  "API URL Error")
         Return
     EndIf
 
