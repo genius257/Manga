@@ -1,8 +1,12 @@
 #include <SQLite.au3>
+#include "../lib/helpers.au3"
+#include "../lib/sqlite3.au3"
 
 ConsoleWrite("X-Powered-By: AutoIt/"&@AutoItVersion&@LF)
 ConsoleWrite("Content-type: text/html; charset=UTF-8"&@LF)
 ConsoleWrite(@LF)
+
+$sHTML = ""
 
 $QUERY_STRING = EnvGet("QUERY_STRING")
 
@@ -29,31 +33,33 @@ EndFunc
 
 OnAutoItExitRegister("DB_CLEANUP")
 
-ConsoleWrite('<!DOCTYPE html><html><head></head><body>')
+$sHTML &= ('<!DOCTYPE html><html><head><link href="/css/main.css" rel="stylesheet" /><link rel="stylesheet" href="/css/read.css" /></head><body>')
 Switch ($sQuery)
     Case "manga"
-        ConsoleWrite("<table>")
-        ConsoleWrite("<tr><th>name</th><th>date added</th><th>watched</th></tr>")
+        $sHTML &= ('<div class="main">')
+        $sHTML &= ("<div><table>")
+        $sHTML &= ("<tr><th>name</th><th>date added</th><th>watched</th></tr>")
         Local $hQuery
         _SQLite_Query($hDB, "SELECT id, name, date_added FROM chapter WHERE manga_id = ? ORDER BY id ASC", $hQuery)
         _SQLite_Bind_Text($hQuery, 1, $iQuery)
         Local $aRow
         While _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
-            ;ConsoleWrite(StringFormat('<a href="?chapter=%s">%s</a>', $aRow[0], $aRow[1]))
-            ConsoleWrite(StringFormat('<tr><td><a href="?chapter=%s">%s</a></td><td><a href="?chapter=%s">%s</a></td>', $aRow[0], $aRow[1], $aRow[0], $aRow[2]))
+            ;$sHTML &= (StringFormat('<a href="?chapter=%s">%s</a>', $aRow[0], $aRow[1]))
+            $sHTML &= (StringFormat('<tr><td><a href="?chapter=%s">%s</a></td><td><a href="?chapter=%s">%s</a></td>', $aRow[0], $aRow[1], $aRow[0], $aRow[2]))
             Local $hQuery2
             _SQLite_Query($hDB, "SELECT (SELECT count(history.id) FROM history LEFT JOIN page ON page.id = history.page_id LEFT JOIN chapter ON chapter.id = page.chapter_id WHERE chapter.id = ?) AS read, (SELECT count(page.id) FROM page LEFT JOIN chapter on chapter.id = page.chapter_id WHERE chapter.id = ?) as total", $hQuery2)
             _SQLite_Bind_Int($hQuery2, 1, $aRow[0])
             _SQLite_Bind_Int($hQuery2, 2, $aRow[0])
             Local $aRow2
             If _SQLite_FetchData($hQuery2, $aRow2) = $SQLITE_OK Then
-                ConsoleWrite(StringFormat('<td>%s (%s of %s)</td>', ($aRow2[0] == 0) ? 'Un-read' : ($aRow2[0] < $aRow2[1] ? 'In progress' : 'Read'), $aRow2[0], $aRow2[1]))
+                $sHTML &= (StringFormat('<td>%s (%s of %s)</td>', ($aRow2[0] == 0) ? 'Un-read' : ($aRow2[0] < $aRow2[1] ? 'In progress' : 'Read'), $aRow2[0], $aRow2[1]))
             Else
-                ConsoleWrite('<td>SQLITE ERROR</dt>')
+                $sHTML &= ('<td>SQLITE ERROR</dt>')
             EndIf
-            ConsoleWrite('</tr>')
+            $sHTML &= ('</tr>')
         WEnd
-        ConsoleWrite("</table>")
+        $sHTML &= ("</table></div>")
+        $sHTML &= ('</div>')
     Case "chapter"
         $aQuery2 = StringRegExp($QUERY_STRING, "^[a-z]+=[0-9]+&([a-z]+)=([0-9]+)", 1)
         Local $hQuery
@@ -73,13 +79,13 @@ Switch ($sQuery)
             $chapterPathId = $aRow[2]
             $mangaPathId = $aRow[3]
         Else
-            ConsoleWrite("problem")
+            $sHTML &= ("problem")
             Exit
         EndIf
         ;$iPage = UBound($aQuery2, 1) > 0 ? $aQuery2[1] : 1
         Local $hQuery
         ;_SQLite_Query($hDB, "SELECT pathId FROM chapter WHERE id = ? ORDER BY id ASC", $hQuery)
-        _SQLite_Query($hDB, "SELECT manga.pathId, chapter.pathId FROM chapter LEFT JOIN manga ON manga.id = chapter.manga_id WHERE chapter.id = ?", $hQuery)
+        _SQLite_Query($hDB, "SELECT manga.pathId, chapter.pathId, manga.name, chapter.name FROM chapter LEFT JOIN manga ON manga.id = chapter.manga_id WHERE chapter.id = ?", $hQuery)
         _SQLite_Bind_Int($hQuery, 1, $iQuery)
         Local $aRow
         If _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK Then
@@ -87,14 +93,14 @@ Switch ($sQuery)
             $nextHref = getNextHref($pageId); StringFormat('?chapter=%s&page=%s', $iQuery, $iPage + 1)
 
             $sDataPath = @ScriptDir & "\data\" & $aRow[0] & "\" & $aRow[1]
-            ;ConsoleWrite(StringFormat('<script type="text/javascript">var page=%s;var nextpage=%s;var previousPage=%s;</script>', $iPage, FileExists($sDataPath & "\" & ($iPage + 1) & ".jpg"), FileExists($sDataPath & "\" & ($iPage - 1) & ".jpg")))
-            ConsoleWrite('<script type="text/javascript" src="/js/read.js"></script>')
-            ConsoleWrite('<link rel="stylesheet" href="/css/read.css" />')
-            ConsoleWrite(StringFormat('<a href="%s"><div id="previous"></div></a>', $previousHref))
-            ConsoleWrite(StringFormat('<a href="%s">', $nextHref))
-            ConsoleWrite(StringFormat('<img src="/data/%s/%s/%s" />', $mangaPathId, $chapterPathId, $pagePathId))
-            ConsoleWrite('</a>')
-            ConsoleWrite(StringFormat('<a href="%s"><div id="next"></div></a>', $nextHref))
+            $sHTML &= (StringFormat('<div style="text-align:center;padding: 50px 0 0 0;">%s - %s - ?</div>', $aRow[2], $aRow[3]))
+            $sHTML &= ('<div class="main">')
+            $sHTML &= ('<script type="text/javascript" src="/js/read.js"></script>')
+            $sHTML &= (StringFormat('<a href="%s"><div id="previous"></div></a>', $previousHref))
+            $sHTML &= (StringFormat('<a href="%s">', $nextHref))
+            $sHTML &= (StringFormat('<img src="/data/%s/%s/%s" />', $mangaPathId, $chapterPathId, $pagePathId))
+            $sHTML &= ('</a>')
+            $sHTML &= (StringFormat('<a href="%s"><div id="next"></div></a>', $nextHref))
         EndIf
         _SQLite_Query($hDB, "SELECT id FROM history WHERE page_id = ? LIMIT 1", $hQuery)
         _SQLite_Bind_Int($hQuery, 1, $pageId)
@@ -105,7 +111,9 @@ Switch ($sQuery)
         EndIf
         _SQLite_Bind_Int($hQuery, 1, $pageId)
         _SQLite_Step($hQuery)
-        _SQLite_QueryFinalize($hQuery)
+        $iStatus = _SQLite_QueryFinalize($hQuery)
+        If $iStatus <> $SQLITE_OK Then HTML_WriteError(StringFormat("Could not register page view! (SQLITE status: %s)", $iStatus))
+        $sHTML &= ('</div>')
     Case "page"
         ;FIXME: get chapter id and redirect to chapter=X&page=Y
         Exit MsgBox(0, "", "NO!")
@@ -119,47 +127,8 @@ Switch ($sQuery)
     Case Else
         ;ConsoleWrite('query: "'&$sQuery&'"')
 EndSwitch
-;ConsoleWrite('here the manga will be shown')
-;ConsoleWrite('<br />'&$QUERY_STRING)
-ConsoleWrite('</body></html>')
-
-Func _SQLite_NextStmt($hDB)
-	If __SQLite_hChk($hDB, 2) Then Return SetError(@error, 0, $SQLITE_MISUSE)
-	Local $iRval = DllCall($__g_hDll_SQLite, "ptr:cdecl", "sqlite3_next_stmt", "ptr", $hDB, "ptr", 0)
-	If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-	Return $iRval[0]
-EndFunc
-
-Func _SQLite_Step($hQuery)
-    Local $iRval_Step = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_step", "ptr", $hQuery)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-EndFunc
-
-Func _SQLite_Bind_Text($hQuery, $iRowID, $sTextRow)
-    Local $iRval = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_bind_text16", _
-            "ptr", $hQuery, _
-            "int", $iRowID, _
-            "wstr", $sTextRow, _
-            "int", -1, _
-            "ptr", NULL)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-    If $iRval[0] <> $SQLITE_OK Then
-        Return SetError(-1, 0, $iRval[0])
-    EndIf
-    Return $iRval[0]
-EndFunc
-
-Func _SQLite_Bind_Int($hQuery, $iRowID, $iIntRow)
-    Local $iRval = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_bind_int", _
-            "ptr", $hQuery, _
-            "int", $iRowID, _
-            "int", $iIntRow)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-    If $iRval[0] <> $SQLITE_OK Then
-        Return SetError(-1, 0, $iRval[0])
-    EndIf
-    Return $iRval[0]
-EndFunc
+$sHTML &= ('</body></html>')
+ConsoleWrite($sHTML)
 
 Func getPreviousHref($pageId)
     _SQLite_Query($hDB, 'SELECT chapter_id, id FROM page WHERE chapter_id = (SELECT chapter_id FROM page WHERE id = ?) AND id < ? ORDER BY id DESC LIMIT 1', $hQuery)

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>history</title>
+        <link href="/css/main.css" rel="stylesheet" />
+        <link href="/css/roboto.css" rel="stylesheet" />
+        <link href="/css/MaterialIcons.css" rel="stylesheet" />
+        <script>
+            document.addEventListener("DOMContentLoaded", event => {
+                let offset = 0;
+                const loadHistory = (after) => {
+                    fetch(`/api/history/?order=0${(after > 0 ? "&before="+after : "")}`).then(response => response.json()).then(json => json.forEach(history => {
+                        let tr = document.createElement('tr');
+                        target.insertBefore(tr, beforeTarget);
+
+                        fetch(`/api/page/:${history.page_id}/`).then(response => response.json()).then(page => {
+                            fetch(`/api/chapter/:${page[0].chapter_id}/`).then(response => response.json()).then(chapter => {
+                                fetch(`/api/manga/:${chapter[0].manga_id}/`).then(response => response.json()).then(manga => {
+                                    let td = document.createElement('td');
+                                    td.innerText = manga[0].name;
+                                    tr.appendChild(td);
+
+                                    td = document.createElement('td');
+                                    td.innerText = chapter[0].name;
+                                    tr.appendChild(td);
+
+                                    td = document.createElement('td');
+                                    td.innerText = page[0].name;
+                                    tr.appendChild(td);
+
+                                    const unixTimestamp = history.updated_at || history.created_at;
+                                    offset = offset === 0 ? unixTimestamp : Math.min(offset, unixTimestamp);
+                                    const milliseconds = unixTimestamp * 1000;
+                                    const dateObject = new Date(milliseconds);
+
+                                    td = document.createElement('td');
+                                    td.innerText = dateObject.toLocaleString();
+                                    tr.appendChild(td);
+                                });
+                            });
+                        });
+                    }));
+                };
+
+                const target = document.getElementsByTagName('tr')[0].parentElement;
+                const beforeTarget = target.children[target.children.length - 1];
+                beforeTarget.addEventListener('click', event => {
+                    loadHistory(offset);
+                });
+
+                loadHistory(offset);
+            });
+        </script>
+    </head>
+    <body>
+        <div style="padding: 50px 0;">
+            <table style="margin: 0 auto;">
+                <tr>
+                    <th>Name</th>
+                    <th>Chapter</th>
+                    <th>Page</th>
+                    <th>Date</th>
+                </tr>
+                <tr style="cursor: pointer;">
+                    <th colspan="4">
+                        <span class="material-icons">
+                            expand_more
+                        </span>
+                    </th>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

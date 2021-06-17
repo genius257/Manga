@@ -1,10 +1,35 @@
 #include <Array.au3>
-#include <SQLite.au3>
-#include <SQLite.dll.au3>
+#include "..\..\lib\sqlite3.au3"
 
+$REQUEST_URI = EnvGet("REQUEST_URI")
+$aREQUEST_URI = StringRegExp($REQUEST_URI, "^(?:/:([0-9]+))?/?$", 1)
+$iREQUEST_URI = IsArray($aREQUEST_URI) And (Not ($aREQUEST_URI[0] = "")) And (Not ($aREQUEST_URI[0] = "/")) ? $aREQUEST_URI[0] : Null
+
+If Not IsArray($aREQUEST_URI) Then ConsoleWrite("Status: 400 Bad Request"&@LF)
 ConsoleWrite("X-Powered-By: AutoIt/"&@AutoItVersion&@LF)
-ConsoleWrite("Content-type: text/json; charset=UTF-8"&@LF)
+ConsoleWrite("Content-type: application/json; charset=UTF-8"&@LF)
 ConsoleWrite(@LF)
+
+Global $sBefore = ""
+Global $sAfter = ""
+Global $iLimit = 25
+Global $bOrder = 1
+Global Const $QUERY_STRING = EnvGet("QUERY_STRING")
+Global Const $aQuery = StringSplit($QUERY_STRING, "&", 2)
+Global $sQuery, $aQueryEntry
+For $sQuery In $aQuery
+    $aQueryEntry = StringSplit($sQuery, "=", 2)
+    Switch StringLower($aQueryEntry[0])
+        Case 'before'
+            $sBefore = Execute("$aQueryEntry[1]")
+        Case 'after'
+            $sAfter = Execute("$aQueryEntry[1]")
+        Case 'limit'
+            $iLimit = Int(Execute("$aQueryEntry[1]"), 1)
+        Case 'order'
+            $bOrder = (Execute("$aQueryEntry[1]") = "1")
+    EndSwitch
+Next
 
 _SQLite_Startup(@ScriptDir&"\..\..\mangaSvc\sqlite3.dll", False, 1)
 Global Const $sDatabase = @ScriptDir & "\..\..\mangaSvc\database.sqlite3"
@@ -29,21 +54,33 @@ EndFunc
 OnAutoItExitRegister("DB_CLEANUP")
 
 Local $hQuery
-_SQLite_Query($hDB, "SELECT * FROM manga WHERE deleted_at IS NULL ORDER BY name", $hQuery)
+_SQLite_Query( _
+    $hDB, _
+    StringFormat( _
+        "SELECT * FROM manga WHERE deleted_at IS NULL %s %s ORDER BY IFNULL(updated_at, created_at) %s LIMIT ?", _
+        $sBefore = "" ? ($sAfter = "" ? "" : "AND IFNULL(updated_at, created_at) > ?") : "AND IFNULL(updated_at, created_at) < ?", _
+        $iREQUEST_URI = Null ? "" : "AND id = ?", _
+        $bOrder ? "ASC" : "DESC" _
+    ), _
+    $hQuery _
+)
 
-;_SQLite_Bind_Text($hQuery, 1, $sApiId)
-;_SQLite_Bind_Text($hQuery, 2, $sUrl)
-;_SQLite_Bind_Text($hQuery, 3, $sPathId)
+If Not ($sBefore = "") Then
+    _SQLite_Bind_Int($hQuery, 1, $sBefore)
+    If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 2, $iREQUEST_URI)
+    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 2 : 3, $iLimit)
+ElseIf Not ($sAfter = "") Then
+    _SQLite_Bind_Int($hQuery, 1, $sAfter)
+    If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 2, $iREQUEST_URI)
+    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 2 : 3, $iLimit)
+Else
+If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 1, $iREQUEST_URI)
+    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 1 : 2, $iLimit)
+EndIf
 
-;_SQLite_Step($hQuery)
-;_SQLite_QueryReset($hQuery)
-;_SQLite_QueryFinalize($hQuery)
-;$mangaId = _SQLite_LastInsertRowID($hDB)
 ConsoleWrite("[")
 Local $columns = Null
 Local $aRow, $aRows[0]
-;Local $aNames
-;_SQLite_FetchNames($hQuery, $aNames)
 Local $_iColumns = sqlite3_column_count($hQuery)
 While _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
     ;Local $_iColumns = sqlite3_column_count($hQuery)
@@ -57,36 +94,3 @@ While _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
 WEnd
 ConsoleWrite(_ArrayToString($aRows, ","))
 ConsoleWrite("]")
-
-Func _SQLite_NextStmt($hDB)
-	If __SQLite_hChk($hDB, 2) Then Return SetError(@error, 0, $SQLITE_MISUSE)
-	Local $iRval = DllCall($__g_hDll_SQLite, "ptr:cdecl", "sqlite3_next_stmt", "ptr", $hDB, "ptr", 0)
-	If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-	Return $iRval[0]
-EndFunc
-
-Func _SQLite_Step($hQuery)
-    Local $iRval_Step = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_step", "ptr", $hQuery)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-EndFunc
-
-Func sqlite3_column_count($hQuery)
-    If __SQLite_hChk($hQuery, 3, False) Then Return SetError(@error, 0, $SQLITE_MISUSE)
-    Local $iRval_Step = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_column_count", "ptr", $hQuery)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-    Return $iRval_Step[0]
-EndFunc
-
-Func sqlite3_data_count($hQuery)
-    If __SQLite_hChk($hQuery, 3, False) Then Return SetError(@error, 0, $SQLITE_MISUSE)
-    Local $iRval_ColCnt = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_data_count", "ptr", $hQuery)
-    If @error Then Return SetError(2, @error, $SQLITE_MISUSE) ; DllCall error
-    Return $iRval_ColCnt[0]
-EndFunc
-
-Func sqlite3_column_name16($hQuery, $iCnt)
-    Local $avColName = DllCall($__g_hDll_SQLite, "wstr:cdecl", "sqlite3_column_name16", "ptr", $hQuery, "int", $iCnt)
-    If @error Then Return SetError(2, @error, $SQLITE_MISUSE) ; DllCall error
-    ;$aNames[$iCnt] = $avColName[0]
-    Return $avColName[0]
-EndFunc

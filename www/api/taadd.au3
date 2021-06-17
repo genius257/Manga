@@ -1,7 +1,7 @@
 #include "..\..\Server.au3"
 #include "..\..\AutoIt-HTML-Parser-master\HTMLParser.au3"
 #include "..\..\mangaSvc\api.au3"
-#include <SQLite.au3>
+#include "..\..\lib\sqlite3.au3"
 
 ConsoleWrite("X-Powered-By: AutoIt/"&@AutoItVersion&@LF)
 ConsoleWrite("Content-type: text/html; charset=UTF-8"&@LF)
@@ -34,13 +34,13 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
     If StringRight($REQUEST_URI, 11) = "/subscribe/" Then
         _mangaSvc_Subscribe("taadd", StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11))
         ConsoleWrite(StringFormat('<html><head><meta http-equiv="refresh" content="3;url=/api/taadd%s" /></head><body>', StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11)))
-        ConsoleWrite("Subscribed.")
+        ConsoleWrite("Subscribed.");FIXME: we should do a check, to make sure the subsribe request was accurly successfull, before informing the end user.
         ConsoleWrite("</body></html>")
     Else
         ConsoleWrite("<html><head></head><body>")
         ConsoleWrite("<h1>"&$name&"</h1>")
 
-        _SQLite_Startup(@ScriptDir & "\..\..\mangaSvc\sqlite3.dll", False, 1)
+        _SQLite_Startup(@ScriptDir & "\..\..\mangaSvc\sqlite3.dll", False, 1, _mangaSvc_PrintCallback)
         $hDB = _SQLite_Open(@ScriptDir & "\..\..\mangaSvc\database.sqlite3")
         Local $hQuery, $aRow
         _SQLite_Query($hDB, "SELECT id FROM manga WHERE api = ? AND url = ? LIMIT 1", $hQuery)
@@ -61,17 +61,3 @@ Else
     $sResponse = StringRegExpReplace($sResponse, 'action="(https?:)?(\/\/)?(my.)?taadd.com\/', 'action="/api/taadd/')
     ConsoleWrite($sResponse)
 EndIf
-
-Func _SQLite_Bind_Text($hQuery, $iRowID, $sTextRow)
-    Local $iRval = DllCall($__g_hDll_SQLite, "int:cdecl", "sqlite3_bind_text16", _
-            "ptr", $hQuery, _
-            "int", $iRowID, _
-            "wstr", $sTextRow, _
-            "int", -1, _
-            "ptr", NULL)
-    If @error Then Return SetError(1, @error, $SQLITE_MISUSE) ; DllCall error
-    If $iRval[0] <> $SQLITE_OK Then
-        Return SetError(-1, 0, $iRval[0])
-    EndIf
-    Return $iRval[0]
-EndFunc

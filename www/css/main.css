@@ -1,0 +1,213 @@
+a {
+    text-decoration: none;
+}
+iframe {
+    border: 0 none;
+    width: 100%;
+    height: 100%;
+}
+table {
+    border-radius: 10px;
+    border-collapse: collapse;
+}
+table th, table td {
+    padding: 10px 20px;
+}
+table th {
+    background-color: #343049;
+    color: #DEE2E5;
+}
+table tr {
+    background-color: #FFFFFF;
+}
+table tr:nth-child(2n-1) {
+    background-color: #F6F6F6;
+}
+.material-icons {
+    font-size: 32px;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto";
+}
+#body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: grid;
+    grid-template-areas: 
+        "nav header"
+        "nav main"
+    ;
+    grid-template-rows: 70px calc(100vh - 70px);
+    grid-template-columns: 60px calc(100vw - 60px);
+    background-color: #272C38;
+    --background-image: url(/data/);
+}
+nav {
+    grid-area: nav;
+    width: 60px;
+    height: 100vh;
+    background-color: #1E2530;
+    --background-color: red;
+}
+nav a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 60px;
+    height: 70px;
+    box-sizing: border-box;
+    color: #787B83;
+    text-decoration: none;
+    position: relative;
+}
+nav a.active, header a.active {
+    color: #FFFFFF;
+}
+nav a.active::after {
+    display: block;
+    content: "";
+    position: absolute;
+    top: calc(50% - 20px);
+    left: 0;
+    width: 5px;
+    width: 3px;
+    height: 40px;
+    background-color: #59C6FF;
+    border-radius: 0px 5px 5px 0;
+    border-radius: 0px 10px 10px 0;
+}
+header {
+    grid-area: header;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    --background-color: green;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding:0 30px;
+}
+header a {
+    position: relative;
+}
+header a.active::after {
+    display: block;
+    content: "";
+    position: absolute;
+    top: -20px;
+    left: calc(50% - 20px);
+    width: 40px;
+    height: 3px;
+    background-color: #59C6FF;
+    border-radius: 0px 0 5px 5px;
+    border-radius: 0px 0 10px 10px;
+}
+main {
+    grid-area: main;
+    --background-color: blue;
+    overflow: hidden;
+    --scrollbar-color: red;
+    font-size: 0;
+}
+.search {
+    width: 500px;
+    height: 30px;
+    display: block;
+    background-color: #1E232F;
+    padding: 5px 10px;
+    position: relative;
+    border-radius: 3px;
+}
+.search input {
+    background-color: transparent;
+    border: 0 none;
+    width: calc(100% - 35px);
+    height: 100%;
+    outline: none;
+    color: #b7bccc;
+}
+.search::after {
+    display: block;
+    font-family: "Material Icons";
+    font-size: 24px;
+    content: "search";
+    position: absolute;
+    top: calc(50% - 12px);
+    right: 10px;
+    color: #7E818D;
+}
+.card {
+    width: 190px;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+.card .image {
+    width: 100%;
+    height: 275px;
+    background-color: rgba(0, 0, 0, 0.2);
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+.card .title {
+    color: #DEE2E5;
+}
+.card .title.secondary {
+    color: #727582;
+}
+.hub {
+    /* Represents a control that displays groups of content in a panning view. */
+    padding: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+.hubHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: #FEFDFF;
+    margin-bottom: 20px;
+}
+.hubSrollButton {
+    cursor: pointer;
+    background-color: transparent;
+    color: #FFFDFF;
+    padding: 0;
+    border: 0 none;
+}
+.hubSrollButton:hover, .hubSrollButton:focus-visible {
+    text-shadow: 0px 0px 2px #fff;
+}
+.hero {
+    width: 30px;
+    height: 30px;
+    background-color: #FFFEFA;
+    border-radius: 30px;
+    position: relative;
+}
+.hero::before {
+    display: block;
+    content: "person";
+    font-family: 'Material Icons';
+    font-size: 24px;
+    position: absolute;
+    top: calc(50% - 15px);
+    left: calc(50% - 12px);
+}
+.hero::after {
+    display: block;
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 100%;
+    background-color: #73AF74;
+    border: 1px solid #34453B;
+}
