@@ -114,9 +114,9 @@ Switch ($sQuery)
         $iStatus = _SQLite_QueryFinalize($hQuery)
         If $iStatus <> $SQLITE_OK Then HTML_WriteError(StringFormat("Could not register page view! (SQLITE status: %s)", $iStatus))
         $sHTML &= ('</div>')
+    #cs
     Case "page"
         ;FIXME: get chapter id and redirect to chapter=X&page=Y
-        Exit MsgBox(0, "", "NO!")
         _SQLite_Query($hDB, 'SELECT chapter_id, id FROM page WHERE chapter_id = (SELECT chapter_id FROM page WHERE id = ?) AND id > ? ORDER BY id LIMIT 1', $hQuery)
         _SQLite_Bind_Int($hQuery, 1, $pageId)
         _SQLite_Bind_Int($hQuery, 2, $pageId)
@@ -124,6 +124,7 @@ Switch ($sQuery)
         If _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK Then
 
         EndIf
+    #ce
     Case Else
         ;ConsoleWrite('query: "'&$sQuery&'"')
 EndSwitch
