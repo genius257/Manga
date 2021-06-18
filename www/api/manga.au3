@@ -57,9 +57,10 @@ Local $hQuery
 _SQLite_Query( _
     $hDB, _
     StringFormat( _
-        "SELECT * FROM manga WHERE deleted_at IS NULL %s %s ORDER BY IFNULL(updated_at, created_at) %s LIMIT ?", _
+        "SELECT * FROM manga WHERE deleted_at IS NULL %s %s ORDER BY IFNULL(updated_at, created_at) %s, id %s LIMIT ?", _
         $sBefore = "" ? ($sAfter = "" ? "" : "AND IFNULL(updated_at, created_at) > ?") : "AND IFNULL(updated_at, created_at) < ?", _
         $iREQUEST_URI = Null ? "" : "AND id = ?", _
+        $bOrder ? "ASC" : "DESC", _
         $bOrder ? "ASC" : "DESC" _
     ), _
     $hQuery _
