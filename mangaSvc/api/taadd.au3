@@ -74,6 +74,7 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
 
         Local $aRow
         Local $bExists = _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
+        _SQLite_QueryFinalize($hQuery)
 
         If Not $bExists Then
             _SQLite_Query($hDB, "INSERT INTO chapter (manga_id, name, pathId, date_added) VALUES (?, ?, ?, ?)", $hQuery)
