@@ -59,5 +59,6 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
 Else
     $sResponse = StringRegExpReplace($sResponse, '(?i)<a ([^>]*)href="(https?:)?(\/\/)?(www.)?taadd.com\/', '<a $1href="/api/taadd/')
     $sResponse = StringRegExpReplace($sResponse, 'action="(https?:)?(\/\/)?(my.)?taadd.com\/', 'action="/api/taadd/')
+    $sResponse = StringRegExpReplace($sResponse, 'target="_blank"', '')
     ConsoleWrite($sResponse)
 EndIf
