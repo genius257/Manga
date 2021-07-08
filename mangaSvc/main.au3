@@ -97,6 +97,7 @@ Func processQueueEntry()
     _SQLite_Bind_Text($hQuery, 1, $sApiId)
     _SQLite_Bind_Text($hQuery, 2, $sUrl)
     Local $bExists = _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK
+    _SQLite_QueryFinalize($hQuery)
     Local $mangaId = $bExists ? $aRow[0] : 0
     If Not $bExists Then
         _SQLite_Query($hDB, "INSERT INTO manga (api, url, pathId) VALUES (?, ?, ?)", $hQuery)
