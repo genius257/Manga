@@ -27,6 +27,10 @@ If Not $bDatabaseExists Then
     _SQLite_Exec($hDB, "CREATE TABLE chapter (id INTEGER PRIMARY KEY, manga_id INTEGER, name TEXT, pathId TEXT, date_added TEXT, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
     _SQLite_Exec($hDB, "CREATE TABLE page (id INTEGER PRIMARY KEY, chapter_id INTEGER, name TEXT, pathId TEXT, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
     _SQLite_Exec($hDB, "CREATE TABLE history (id INTEGER PRIMARY KEY, page_id INTEGER, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
+
+    _SQLite_Exec($hDB, "CREATE UNIQUE INDEX history_page_id_unique ON history (page_id);")
+    _SQLite_Exec($hDB, "CREATE INDEX page_chapter_id_index ON page (chapter_id);")
+    _SQLite_Exec($hDB, "CREATE INDEX chapter_manga_id_index ON chapter (manga_id);")
 EndIf
 
 Func DB_CLEANUP()
