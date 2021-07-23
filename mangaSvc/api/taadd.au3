@@ -110,6 +110,14 @@ Func _taadd_download_chapter($sUrl, $outputDir, $chapterId)
     Local $pItem = _HTMLParser_GetFirstStartTag($tTokenList.head);finds first start tag. In this example it will be <html>
     Local $pSelect = _HTMLParser_GetElementByID('page', $pItem)
     Local $aOptions = _HTMLParser_GetElementsByTagName('option', $pSelect)
+    Local $hQuery, $aRow
+    _SQLite_Query($hDB, "SELECT COUNT(id) FROM page WHERE chapter_id = ?", $hQuery)
+    _SQLite_Bind_Int($hQuery, 1, $chapterId)
+    If _SQLite_FetchData($hQuery, $aRow) = $SQLITE_OK And UBound($aOptions, 1) <= $aRow[0] Then
+        _SQLite_QueryFinalize($hQuery)
+        Return True
+    EndIf
+    _SQLite_QueryFinalize($hQuery)
     Local $i, $j
     For $i = 0 To UBound($aOptions, 1) - 1 Step +1
         Local $value = _HTMLParser_Element_GetAttribute('value', $aOptions[$i])
