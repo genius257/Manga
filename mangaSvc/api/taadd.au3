@@ -45,7 +45,8 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
 
 
     Local $i
-    For $i = 0 To UBound($aHyperlinks, 1) - 1 Step +2
+    ; For $i = 0 To UBound($aHyperlinks, 1) - 1 Step +2
+    For $i = UBound($aHyperlinks, 1) -(1 + Mod(UBound($aHyperlinks, 1)+1, 2)) To 0 Step -2
         Local $href = _HTMLParser_Element_GetAttribute('href', $aHyperlinks[$i])
         Local $text = ""
         Local $aText = _HTMLParser_Element_GetText($aHyperlinks[$i])
