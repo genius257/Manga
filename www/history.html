@@ -18,6 +18,7 @@
                                 fetch(`/api/manga/:${chapter[0].manga_id}/`).then(response => response.json()).then(manga => {
                                     let td = document.createElement('td');
                                     td.innerText = manga[0].name;
+                                    td.innerText = history.id;
                                     tr.appendChild(td);
 
                                     td = document.createElement('td');
