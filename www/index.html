@@ -1,64 +1,42 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title></title>
-        <link href="/css/main.css" rel="stylesheet" />
-        <link href="/css/roboto.css" rel="stylesheet" />
-        <link href="/css/MaterialIcons.css" rel="stylesheet" />
-        <script>
-            document.addEventListener("DOMContentLoaded", (event) => {
-                document.getElementsByTagName("iframe")[0].addEventListener('load', (event) => {
-                    let url = event.originalTarget.contentWindow.location.pathname;
-                    Array.prototype.forEach.call(document.getElementsByTagName('a'), e => {
-                        if (e.getAttribute("href") === url) {
-                            e.classList.add('active');
-                        } else {
-                            e.classList.remove('active');
-                        }
-                    });
-                });
-            });
-        </script>
-    </head>
-    <body id="body">
-        <nav>
-            <a href="/dashboard.html" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);" target="main" title="Home">
-                <span class="material-icons">
-                    home
-                </span>
-            </a>
-            <a href="/api/" target="main" title="API's">
-                <span class="material-icons">
-                    api
-                </span>
-            </a>
-            <a href="/settings.html" target="main" title="Settings">
-                <span class="material-icons">
-                    settings
-                </span>
-            </a>
-        </nav>
-        <header>
-            <a href="/dashboard.html" target="main"><figure style="margin-left: 0;margin-right: 0;"><img src="images/logo.png" /></figure></a>
-            <label class="search">
-                <input type="text" placeholder="Search..." />
-            </label>
-            <div style="display: flex;flex-direction: row;gap: 25px;">
-                <a href="/history.html" target="main" title="History">
-                    <span class="material-icons" style="font-size: 24px;color: #D5D5D7;">
-                        watch_later
-                    </span>
-                </a>
-                <a href="/notifications.html" target="main" title="Notifications">
-                    <span class="material-icons" style="font-size: 24px;color: #D5D5D7;">
-                        notifications
-                    </span>
-                </a>
-                <div class="hero"></div>
-            </div>
-        </header>
-        <main>
-            <iframe src="/dashboard.html" name="main"></iframe>
-        </main>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manga</title>
+    <link href="/css/main.css" rel="stylesheet" />
+    <link href="/css/roboto.css" rel="stylesheet" />
+    <link href="/css/MaterialIcons.css" rel="stylesheet" />
+    <!--
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    -->
+    <!--<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>-->
+    <script crossorigin src="js/react_17_0_2/react.development.js"></script>
+    <!--<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>-->
+    <script crossorigin src="js/react_17_0_2/react-dom.development.js"></script>
+    <!--<script crossorigin src="https://unpkg.com/react-router-dom@4.2.2/umd/react-router-dom.js"></script>-->
+    <script crossorigin src="js/react-router-dom.js"></script>
+    <script crossorigin src="js/main.js"></script>
+    <!--<script src="https://unpkg.com/@babel/standalone@7.14.7/babel.min.js"></script>-->
+    <script src="js/babel.standalone.7.14.7.min.js"></script>
+    <!--<script src="https://unpkg.com/@babel/standalone@7.14.7/babel.js"></script>-->
+    <script>
+        Babel.registerPreset("my-preset", {
+            presets: [Babel.availablePresets["react"]],
+            moduleIds: true,
+            getModuleId: (name) => {
+                return 'react/index.jsx';
+                //return 'test/index.js';
+            }
+        });
+    </script>
+    <!--<script src="react/index.js" type="text/babel" data-presets="react" data-type="module" data-plugins="syntax-module-blocks"></script>-->
+    <script src="react/index.jsx" type="text/babel" data-presets="my-preset,react" data-type="module" data-plugins="proposal-dynamic-import,transform-modules-amd"></script>
+    <!--<script src="js/index.js"></script>-->
+</head>
+<body>
+    body
+</body>
 </html>

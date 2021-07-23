@@ -2,16 +2,30 @@
 #include "..\..\lib\sqlite3.au3"
 
 $REQUEST_URI = EnvGet("REQUEST_URI")
-$aREQUEST_URI = StringRegExp($REQUEST_URI, "^(?:/:([0-9]+))?/?$", 1)
+;; $aREQUEST_URI = StringRegExp($REQUEST_URI, "^(?:/:([0-9]+))?/?$", 1)
+$aREQUEST_URI = StringRegExp($REQUEST_URI, "^(?:/:([0-9]+))?(?:/chapters(?:/:([0-9]+))?(?:/pages(?:/:([0-9]+))?)?)?/?$", 1)
+
+$iMangaId = StringIsDigit(Execute('$aREQUEST_URI[0]')) ? $aREQUEST_URI[0] : Null
+;; $bManga = StringRegExp($REQUEST_URI, "/mangas/?") ;; ALWAYS TRUE
+$iChapterId = StringIsDigit(Execute('$aREQUEST_URI[1]')) ? $aREQUEST_URI[1] : Null
+$bChapter = StringRegExp($REQUEST_URI, "/chapter/?")
+$iPageId = StringIsDigit(Execute('$aREQUEST_URI[2]')) ? $aREQUEST_URI[2] : Null
+$bPage = StringRegExp($REQUEST_URI, "/page/?")
 $iREQUEST_URI = IsArray($aREQUEST_URI) And (Not ($aREQUEST_URI[0] = "")) And (Not ($aREQUEST_URI[0] = "/")) ? $aREQUEST_URI[0] : Null
 
-If Not IsArray($aREQUEST_URI) Then ConsoleWrite("Status: 400 Bad Request"&@LF)
 ConsoleWrite("X-Powered-By: AutoIt/"&@AutoItVersion&@LF)
+If Not IsArray($aREQUEST_URI) Then
+    ConsoleWrite("Status: 400 Bad Request"&@LF)
+    ConsoleWrite(@LF)
+    ConsoleWrite("[]")
+    Exit
+EndIf
 ConsoleWrite("Content-type: application/json; charset=UTF-8"&@LF)
 ConsoleWrite(@LF)
 
 Global $sBefore = ""
 Global $sAfter = ""
+Global $iOffset = 0
 Global $iLimit = 25
 Global $bOrder = 1
 Global Const $QUERY_STRING = EnvGet("QUERY_STRING")
@@ -24,6 +38,8 @@ For $sQuery In $aQuery
             $sBefore = Execute("$aQueryEntry[1]")
         Case 'after'
             $sAfter = Execute("$aQueryEntry[1]")
+        Case 'offset'
+            $iOffset = Int(Execute("$aQueryEntry[1]"), 1)
         Case 'limit'
             $iLimit = Int(Execute("$aQueryEntry[1]"), 1)
         Case 'order'
@@ -53,31 +69,55 @@ EndFunc
 
 OnAutoItExitRegister("DB_CLEANUP")
 
+$sQuery = StringFormat("SELECT %s FROM manga WHERE deleted_at IS NULL %s", $bChapter ? "id" : "*" ,$iMangaId = Null ? "" : "AND id = ?")
+
+If ($bChapter) Then
+    $sQuery = StringFormat("SELECT %s FROM chapter WHERE deleted_at IS NULL %s AND manga_id IN (%s)", $bPage ? "id" : "*, (SELECT COUNT(*) FROM chapter _chapter WHERE chapter.manga_id = _chapter.manga_id AND chapter.id >= _chapter.id ) as `index`, (SELECT COUNT(id) FROM history WHERE history.page_id IN (SELECT id FROM page WHERE page.chapter_id = chapter.id)) AS `pages_watched`, (SELECT count(id) FROM page WHERE page.chapter_id = chapter.id) as `pages`", $iChapterId = Null ? "" : "AND id = ?", $sQuery)
+EndIf
+
+If ($bPage) Then
+    $sQuery = StringFormat("SELECT *, (SELECT COUNT(*) FROM page _page WHERE page.chapter_id = _page.chapter_id AND page.id >= _page.id ) as `index` FROM page WHERE deleted_at IS NULL %s AND chapter_id IN (%s)", $iPageId = Null ? "" : "AND id = ?", $sQuery)
+EndIf
+
 Local $hQuery
 _SQLite_Query( _
     $hDB, _
     StringFormat( _
-        "SELECT * FROM manga WHERE deleted_at IS NULL %s %s ORDER BY IFNULL(updated_at, created_at) %s, id %s LIMIT ?", _
-        $sBefore = "" ? ($sAfter = "" ? "" : "AND IFNULL(updated_at, created_at) > ?") : "AND IFNULL(updated_at, created_at) < ?", _
-        $iREQUEST_URI = Null ? "" : "AND id = ?", _
+        $sQuery&" %s ORDER BY IFNULL(updated_at, created_at) %s, id %s LIMIT ?, ?", _
+        $sBefore = "" ? ($sAfter = "" ? "" : "AND created_at > ?") : "AND created_at < ?", _
         $bOrder ? "ASC" : "DESC", _
         $bOrder ? "ASC" : "DESC" _
     ), _
     $hQuery _
 )
 
-If Not ($sBefore = "") Then
-    _SQLite_Bind_Int($hQuery, 1, $sBefore)
-    If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 2, $iREQUEST_URI)
-    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 2 : 3, $iLimit)
-ElseIf Not ($sAfter = "") Then
-    _SQLite_Bind_Int($hQuery, 1, $sAfter)
-    If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 2, $iREQUEST_URI)
-    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 2 : 3, $iLimit)
-Else
-If Not ($iREQUEST_URI = Null) Then _SQLite_Bind_Int($hQuery, 1, $iREQUEST_URI)
-    _SQLite_Bind_Int($hQuery, $iREQUEST_URI = Null ? 1 : 2, $iLimit)
+$i = 1
+If Not($iPageId = Null) Then
+    _SQLite_Bind_Int($hQuery, $i, $iPageId)
+    $i+=1
 EndIf
+
+If Not($iChapterId = Null) Then
+    _SQLite_Bind_Int($hQuery, $i, $iChapterId)
+    $i+=1
+EndIf
+
+If Not($iMangaId = Null) Then
+    _SQLite_Bind_Int($hQuery, $i, $iMangaId)
+    $i+=1
+EndIf
+
+If Not ($sBefore = "") Then
+    _SQLite_Bind_Int($hQuery, $i, $sBefore)
+    $i+=1
+ElseIf Not ($sAfter = "") Then
+    _SQLite_Bind_Int($hQuery, $i, $sAfter)
+    $i+=1
+EndIf
+
+_SQLite_Bind_Int($hQuery, $i, $iOffset)
+$i+=1
+_SQLite_Bind_Int($hQuery, $i, $iLimit)
 
 ConsoleWrite("[")
 Local $columns = Null
