@@ -1,0 +1,12 @@
+/*
+    https://webdesign.tutsplus.com/tutorials/how-to-create-a-frosted-glass-effect-in-css--cms-32535
+*/
+.toast {
+    --position: absolute;
+    --right: 30px;
+    --bottom: 10px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 250px;
+    height: 100px;
+}

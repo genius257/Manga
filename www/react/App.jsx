@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import MaterialIcon from "./components/MaterialIcon";
 import Search from "./components/Search";
+import ToastContainer from "./components/ToastContainer";
 import Api from "./pages/Api";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
@@ -15,6 +16,7 @@ import Manga from "./pages/Manga";
 import Chapter from "./pages/Manga/Chapter";
 import Page from "./pages/Manga/Chapter/Page";
 import SearchPage from "./pages/Search";
+import Settings from "./pages/Settings";
 
 export default class App extends React.Component {
     render() {
@@ -55,14 +57,13 @@ export default class App extends React.Component {
                         <Route exact path="/manga/:mangaId/" component={Manga}/>
                         <Route exact path="/manga/:mangaId/chapter/:chapterId/" component={Chapter}/>
                         <Route exact path="/manga/:mangaId/chapter/:chapterId/page/:pageId/" component={Page}/>
-                        <Route path="/settings/">
-                            <span>settings</span>
-                        </Route>
+                        <Route path="/settings/" component={Settings} />
                         <Route path="/search/" component={SearchPage} />
                         <Route exact path="/" component={Dashboard} />
                         <Route><i>404 Page not found.</i></Route>
                     </Switch>
                 </main>
+                <footer><ToastContainer/></footer>
             </>
         </Router>;
     }
