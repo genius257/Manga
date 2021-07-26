@@ -90,6 +90,7 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
             Local $chapterId = _SQLite_LastInsertRowID($hDB)
         Else
             Local $chapterId = $aRow[0]
+            ContinueLoop; We skip the chapter, because it already exists.
         EndIf
 
         _taadd_download_chapter($href, $outputDir & $sChapter & "\", $chapterId)
