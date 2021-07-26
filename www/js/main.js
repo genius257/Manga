@@ -49,43 +49,51 @@ function define(name, deps, callback) {
                 url = new URL(url, window.location.href).href; //FIXME: we should not use window.location.href, but only protocol, hostname and path. Query string and get parameters should be ignored.
             }
             var url = new URL(dependency, url).href;//requires us to know the url we base this call on.
-            if (definitions[url]) {
-                return new Promise(resolve => {
-                    resolve(definitions[dependency]);
-                });
-            }
             const fileName = url.split('/').pop();
-            const ext = fileName.includes('.') ? url.split('.') : '';
-            if (!ext && !url.endsWith('/')) {
+            const ext = fileName.includes('.') ? url.split('.').pop() : '';
+            if (ext === '' && !url.endsWith('/')) {
                 url = url + '.jsx';
             }
 
-            const promise = fetch(url, {
+            if (definitions[url]) {
+                return new Promise(resolve => {
+                    resolve(definitions[url]);
+                });
+            }
+
+            let promise = fetch(url, {
                 cache: 'force-cache'
             })
-                .then(response => response.text())
-                .then(body => Babel.transform(body, {
-                        filename: fileName,
-                        presets: [
-                            'react',
-                            'typescript'
-                        ],
-                        plugins: [
-                            'proposal-dynamic-import',
-                            'transform-modules-amd'
-                        ],
-                        sourceMaps: true,
-                        moduleId: url
-                    }).code
-                ).then(code => {
-                    //definition.apply(null, [code]);
-                    return eval(code).then(result => {
-                        definitions[url] = result;
-                        //callback(definitions[name]);
-                        return definitions[url];
+                .then(response => response.text());
+
+            if (ext === "css") {
+                promise
+                    .then(css => console.log(css));
+            } else {
+                promise = promise
+                    .then(body => Babel.transform(body, {
+                            filename: fileName,
+                            presets: [
+                                'react',
+                                'typescript'
+                            ],
+                            plugins: [
+                                'proposal-dynamic-import',
+                                'transform-modules-amd'
+                            ],
+                            sourceMaps: true,
+                            moduleId: url
+                        }).code
+                    ).then(code => {
+                        //definition.apply(null, [code]);
+                        return eval(code).then(result => {
+                            definitions[url] = result;
+                            //callback(definitions[name]);
+                            return definitions[url];
+                        });
+                        //return code;
                     });
-                    //return code;
-                });
+            }
             definitions[url] = promise;
             return promise;
         })).then(dependencies => {
