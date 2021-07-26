@@ -1,3 +1,5 @@
+#AutoIt3Wrapper_Run_AU3Check=n
+
 #include <Misc.au3>
 #include <StringConstants.au3>
 #include <TrayConstants.au3>
