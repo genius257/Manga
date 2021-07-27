@@ -2,6 +2,7 @@ import React from "react";
 
 export default class MaterialIcon extends React.Component {
     render() {
-        return <span className="material-icons">{this.props.icon}</span>
+        const className = ["material-icons", this.props.className].filter(v => v).join(' ');
+        return <span {...this.props} className={className}>{this.props.icon}</span>
     }
 }
