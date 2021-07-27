@@ -37,8 +37,9 @@ export default class ToastContainer extends React.Component {
     }
     
     static remove(key) {
-        let index = this._items.findIndex(i => i.props.key === key);
+        let index = this._items.findIndex(i => i.key === key);
         if (index !== -1) this._items.splice(index, 1);
+        this.refreshInstances();
     }
     
     static refreshInstances() {
