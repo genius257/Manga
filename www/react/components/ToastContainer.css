@@ -5,8 +5,57 @@
     --position: absolute;
     --right: 30px;
     --bottom: 10px;
+    position: relative;
     padding: 10px;
     background-color: rgba(255, 255, 255, 0.3);
     width: 250px;
     height: 100px;
+}
+
+.toast .close {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+
+    user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.toast::before {
+    font-family: 'Material Icons';
+    display: flex;
+    width: 50px;
+    height: 100px;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    position: absolute;
+    right: 100%;
+    top: 0;
+    padding: 10px 0;
+    color: rgba(255,255,255,0.6);
+}
+
+.toast.success::before {
+    content: "check";
+    background-color: #119000;
+}
+
+.toast.info::before {
+    content: "info";
+    background-color: #007590;
+}
+
+.toast.warning::before {
+    content: "warning";
+    background-color: #908e00;
+}
+
+.toast.error::before {
+    content: "error";
+    background-color: #900000;
 }
