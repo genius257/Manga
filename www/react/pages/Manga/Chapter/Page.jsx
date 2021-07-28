@@ -7,6 +7,7 @@ import {
   } from "react-router-dom";
 import MaterialIcon from "../../../components/MaterialIcon";
 import Poster from "../../../components/Poster";
+import ToastContainer from "../../../components/ToastContainer";
 
 export default class Page extends React.Component {
     state = {
@@ -48,6 +49,9 @@ export default class Page extends React.Component {
                 fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/:${pageId}/`).then(response => response.json()).then(pages => {
                     document.querySelector("main").scrollTo(0, 0);
                     this.setState({manga: mangas[0], chapter: chapters[0], page: pages[0]});
+
+                    fetch(`/api/watch/:${pageId}/`).then(response => response.ok ? null : ToastContainer.add(`Failed to register page (${pageId}) as watched`, 'error')).catch(reason => ToastContainer.add(`Failed to register page (${pageId}) as watched`, 'error'));
+
                     const page = pages[0];
                     const pageIndex = page.index;
                     fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=3&offset=${pageIndex - 2}`).then(response => response.json()).then(pages => {
