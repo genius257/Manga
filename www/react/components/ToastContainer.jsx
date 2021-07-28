@@ -24,7 +24,6 @@ export default class ToastContainer extends React.Component {
         }
         let key = this._AUTO_INCREMENT;
         if (data) {
-            console.log("adding toast...");
             let key = this._AUTO_INCREMENT++;
             this._items.push(
                 <Toast key={key}>
