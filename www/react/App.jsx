@@ -6,6 +6,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
+import ContextMenu from "./components/contextMenu";
 import MaterialIcon from "./components/MaterialIcon";
 import Search from "./components/Search";
 import ToastContainer from "./components/ToastContainer";
@@ -63,7 +64,7 @@ export default class App extends React.Component {
                         <Route><i>404 Page not found.</i></Route>
                     </Switch>
                 </main>
-                <footer><ToastContainer/></footer>
+                <footer><ToastContainer/><ContextMenu/></footer>
             </>
         </Router>;
     }

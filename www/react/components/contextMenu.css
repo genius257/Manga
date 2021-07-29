@@ -1,0 +1,39 @@
+.contextMenu {
+    padding: 5px;
+    background-color: #fff;
+    min-width: 100px;
+    border: 1px solid #eee;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+  
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+  }
+  
+  .contextMenuItem {
+    padding: 5px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .contextMenuItem:last-child {
+    border-bottom: 0 none;
+  }
+  
+  .contextMenuItem:hover {
+    background-color: #eee;
+  }
+  
+  .contextMenuItem[disabled] {
+    color: rgba(0, 0, 0, 0.3);
+    cursor: default;
+  }
+  
+  .contextMenuItem[disabled]:hover {
+    background-color: inherit;
+  }
+  
