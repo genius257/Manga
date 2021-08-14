@@ -1,3 +1,5 @@
+#AutoIt3Wrapper_Icon=logo.ico
+
 #include "Server.au3"
 
 Opt("WinWaitDelay", 10)
