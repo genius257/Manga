@@ -67,7 +67,7 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
         DirCreate($outputDir & $sChapter)
 
         Local $hQuery
-        _SQLite_Query($hDB, "SELECT id FROM chapter WHERE manga_id = ? AND name = ? AND pathId = ? AND date_added = ? LIMIT 1", $hQuery)
+        _SQLite_Query($hDB, "SELECT id, updated_at FROM chapter WHERE manga_id = ? AND name = ? AND pathId = ? AND date_added = ? LIMIT 1", $hQuery)
         _SQLite_Bind_Int($hQuery, 1, $mangaId)
         _SQLite_Bind_Text($hQuery, 2, $text)
         _SQLite_Bind_Text($hQuery, 3, $sChapter)
@@ -90,10 +90,14 @@ Func _taadd_sync($sUrl, $sPathId, $mangaId)
             Local $chapterId = _SQLite_LastInsertRowID($hDB)
         Else
             Local $chapterId = $aRow[0]
-            ContinueLoop; We skip the chapter, because it already exists.
+            If Not ($aRow[1] = "") Then ContinueLoop; We skip the chapter, because it already exists and is marked as finished processed.
         EndIf
 
         _taadd_download_chapter($href, $outputDir & $sChapter & "\", $chapterId)
+        _SQLite_Query($hDB, "UPDATE `chapter` SET `updated_at` = CAST(strftime('%s', 'now') AS INTEGER) WHERE id = ?", $hQuery)
+        _SQLite_Bind_Int($hQuery, 1, $chapterId)
+        _SQLite_Step($hQuery)
+        _SQLite_QueryFinalize($hQuery)
     Next
 EndFunc
 
