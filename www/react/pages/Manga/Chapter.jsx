@@ -6,6 +6,7 @@ import {
     Link
   } from "react-router-dom";
 import Poster from "../../components/Poster";
+import ToastContainer from "../../components/ToastContainer";
 
 export default class Chapter extends React.Component {
     state = {
@@ -29,8 +30,30 @@ export default class Chapter extends React.Component {
         const chapterId = this.props.match.params.chapterId;
         fetch(`/api/mangas/:${mangaId}/`).then(response => response.json()).then(mangas => {
             fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/`).then(response => response.json()).then(chapters => {
-                fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/`).then(response => response.json()).then(pages => this.setState({manga: mangas[0], chapter: chapters[0], pages: pages}));
+                //fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/`).then(response => response.json()).then(pages => this.setState({manga: mangas[0], chapter: chapters[0], pages: pages}));
+                this.setState({manga: mangas[0], chapter: chapters[0]});
+                this.loadPages(mangaId, chapterId);
             });
+        }).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+    }
+
+    loadPages(mangaId, chapterId, options = {}) {
+        options.order = options?.order ?? 0;
+        options.limit = options?.limit ?? 100;
+        const query = Object.keys(options).map(option => `${option}=${encodeURIComponent(options[option])}`).join('&');
+        return fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?${query}`).then(response => response.json()).then(pages => {
+            if (!Array.isArray(pages) || pages.length === 0) {
+                return [];
+            }
+            const _pages = this.state.pages.concat(pages);
+            this.setState({pages: _pages}, () => {
+                if (pages.length === options.limit) {
+                    this.loadPages(mangaId, {
+                        offset: (options?.offset ?? 0) + options.limit
+                    });
+                }
+            });
+            return pages;
         });
     }
 

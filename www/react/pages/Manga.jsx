@@ -7,6 +7,7 @@ import {
   } from "react-router-dom";
 import ContextMenu, { ContextMenuItem } from "../components/contextMenu";
 import Poster from "../components/Poster";
+import ToastContainer from "../components/ToastContainer";
 
 export default class Manga extends React.Component {
     state = {
@@ -33,8 +34,31 @@ export default class Manga extends React.Component {
     loadManga() {
         const mangaId = this.props.match.params.mangaId;
         fetch(`/api/mangas/:${mangaId}/`).then(response => response.json()).then(mangas => {
-            fetch(`/api/mangas/:${mangaId}/chapters/?order=0`).then(response => response.json()).then(chapters => this.setState({manga: mangas[0], chapters: chapters}));
+            this.setState({manga: mangas[0]});
+            this.loadChapters(mangaId);
+            //fetch(`/api/mangas/:${mangaId}/chapters/?order=0&limit=100`).then(response => response.json()).then(chapters => this.setState({manga: mangas[0], chapters: chapters}));
+        }).catch(reason => ToastContainer.add(reason.toString(), 'error'));
+    }
+
+    async loadChapters(mangaId, options = {}) {
+        options.order = options?.order ?? 0;
+        options.limit = options?.limit ?? 100;
+        const query = Object.keys(options).map(option => `${option}=${encodeURIComponent(options[option])}`).join('&');
+        return fetch(`/api/mangas/:${mangaId}/chapters/?${query}`).then(response => response.json()).then(chapters => {
+            if (!Array.isArray(chapters) || chapters.length === 0) {
+                return [];
+            }
+            const _chapters = this.state.chapters.concat(chapters);
+            this.setState({chapters: _chapters}, () => {
+                if (chapters.length === options.limit) {
+                    this.loadChapters(mangaId, {
+                        offset: (options?.offset ?? 0) + options.limit
+                    });
+                }
+            });
+            return chapters;
         });
+    }
 
     onContextMenu(e) {
         e.preventDefault();
