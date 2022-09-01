@@ -76,7 +76,7 @@ If ($bChapter) Then
 EndIf
 
 If ($bPage) Then
-    $sQuery = StringFormat("SELECT *, (SELECT COUNT(*) FROM page _page WHERE page.chapter_id = _page.chapter_id AND page.id >= _page.id ) as `index` FROM page WHERE deleted_at IS NULL %s AND chapter_id IN (%s)", $iPageId = Null ? "" : "AND id = ?", $sQuery)
+    $sQuery = StringFormat("SELECT *, (SELECT COUNT(*) FROM page _page WHERE page.chapter_id = _page.chapter_id AND page.id >= _page.id ) as `index`, (EXISTS (SELECT id FROM `history` WHERE `history`.`page_id` = `page`.`id`)) as watched FROM page WHERE deleted_at IS NULL %s AND chapter_id IN (%s)", $iPageId = Null ? "" : "AND id = ?", $sQuery)
 EndIf
 
 Local $hQuery
