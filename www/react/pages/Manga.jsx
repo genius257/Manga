@@ -78,6 +78,8 @@ export default class Manga extends React.Component {
         ContextMenu.add(
             <>
                 <ContextMenuItem>Mark as watched</ContextMenuItem>
+                <ContextMenuItem>Mark as un-watched</ContextMenuItem>
+                <ContextMenuItem>Update</ContextMenuItem>
             </>,
             e.pageX,
             e.pageY
