@@ -1,0 +1,1 @@
+This folder is meant for ts intellisense without using npm.
