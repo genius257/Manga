@@ -5,3 +5,15 @@
     background-color: rgba(0, 0, 0, 0.2);
     background-size: contain;
 }
+
+.poster.marked::before {
+    content: "";
+    display: block;
+    width: 0px;
+    height: 0px;
+    border-top: 20px solid #ec9329;
+    border-left: 20px solid transparent;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
