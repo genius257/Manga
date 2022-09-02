@@ -1,25 +1,33 @@
 import React from "react";
-import MaterialIcon from "./MaterialIcon";
+import ReactDOM from "react-dom";
+import MaterialIcon from "./MaterialIcon.jsx";
 //import "./ToastContainer.css";
 
-export default class ToastContainer extends React.Component {
-    static _items = []; //instances of active toasts
-    static _instances = []; //instances of self.
-    static _onClickHandle;
+export type ToastContainerProps = {
+  style: React.DetailedHTMLProps<React.StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>,
+};
+
+export default class ToastContainer extends React.Component<ToastContainerProps> {
+    /** instances of active toasts. */
+    static _items:JSX.Element[] = [];
+    /** instances of self. */
+    static _instances: ToastContainer[] = [];
+    /** @deprecated does not seem to be called anywhere. */
+    static _onClickHandle: null|((event: MouseEvent) => void);
     static _AUTO_INCREMENT = 0;
 
     //FIXME: setting _max > 1 results in bad handling when removing context menu
-    static _max = 5; //the max ammount of context menus allowed at the same time.
+    static _max: number = 5; //the max ammount of context menus allowed at the same time.
 
     static getAutoIncrement() {
         return this._AUTO_INCREMENT;
     }
 
-    static setMax(max) {
+    static setMax(max: number) {
         this._max = max;
     }
     
-    static add(data, className = null) {
+    static add(data: any, className: string|null = null) {
         while (this._items.length >= this._max && this._items.length > 0) {
           this._items.shift(); //TODO: maybe use slice instead, to avoid the loop.
         }
@@ -27,7 +35,7 @@ export default class ToastContainer extends React.Component {
         if (data) {
             let key = this._AUTO_INCREMENT++;
             this._items.push(
-                <Toast key={key} className={className}>
+                <Toast key={key} className={className ?? undefined}>
                     {data}
                 </Toast>
             );
@@ -36,7 +44,7 @@ export default class ToastContainer extends React.Component {
         return key;
     }
     
-    static remove(key) {
+    static remove(key: React.Key) {
         let index = this._items.findIndex(i => i.key === key);
         if (index !== -1) this._items.splice(index, 1);
         this.refreshInstances();
@@ -46,28 +54,29 @@ export default class ToastContainer extends React.Component {
         this._instances.forEach(i => i.forceUpdate());
     }
     
-    static _onClick(e) {
+    static _onClick(event: MouseEvent) {
         if (this._items.length === 0 || this._items.every(i => i === null)) return;
+        const target = event.target as Element|null;
         if (
-          this._instances.every(i => !ReactDOM.findDOMNode(i).contains(e.target))
+          this._instances.every(i => !ReactDOM.findDOMNode(i)?.contains(target))
         ) {
           //e.stopPropagation();
           //e.stopImmediatePropagation();
-          e.preventDefault();
+          event.preventDefault();
           this.add(null);
-          const preventClick = function(e) {
-            e.preventDefault();
+          const preventClick = function(event: MouseEvent) {
+            event.preventDefault();
             // window.removeEventListener("click", preventClick, true); //FIXME: add setTimeout to check mouse button status (if mousedown in browser and mouse up outside of browser and remove event listner if true)
           };
           // window.addEventListener("click", preventClick, true);
         } else {
           if (
-            e.target.className === "toast" ||
-            e.target.hasAttribute("disabled")
+            target?.className === "toast" ||
+            target?.hasAttribute("disabled")
           ) {
             return;
           }
-          const removeContextMenu = e => {
+          const removeContextMenu = (event: MouseEvent) => {
             this.add(null);
             // window.removeEventListener("click", removeContextMenu, false); //FIXME: add setTimeout to check mouse button status (if mousedown in browser and mouse up outside of browser and remove event listner if true)
           };
@@ -79,9 +88,11 @@ export default class ToastContainer extends React.Component {
     }
     
     componentDidMount() {
-        this.constructor._instances.push(this);
-        if (this.constructor._instances.length === 1 && !this._onClickHandle) {
-          this.constructor._onClickHandle = e => this.constructor._onClick(e);
+        const constructor = this.constructor as typeof ToastContainer;
+
+        constructor._instances.push(this);
+        if (constructor._instances.length === 1 && !constructor._onClickHandle) {
+          constructor._onClickHandle = event => constructor._onClick(event);
           /*
           window.addEventListener(
             "mousedown",
@@ -93,37 +104,50 @@ export default class ToastContainer extends React.Component {
     }
     
     componentWillUnmount() {
-        let index = this.constructor._instances.indexOf(this);
-        this.constructor._instances.splice(index, 1);
-        if (this.constructor._instances.length === 0 && this._onClickHandle) {
+        const constructor = this.constructor as typeof ToastContainer;
+
+        let index = constructor._instances.indexOf(this);
+        constructor._instances.splice(index, 1);
+        if (constructor._instances.length === 0 && constructor._onClickHandle) {
           //window.removeEventListener("mousedown", this._onClickHandle, true);
-          this.constructor._onClickHandle = null;
-          this.constructor._max = 1;
-          this.constructor.add(null);
+          constructor._onClickHandle = null;
+          constructor._max = 1;
+          constructor.add(null);
         }
     }
     
     render() {
-        return <div style={{position: "absolute", right: "30px", bottom: "10px", display: "flex", flexDirection: "column", gap: "5px", ...this.props.style}}>{this.constructor._items}</div>;
+        return <div style={{position: "absolute", right: "30px", bottom: "10px", display: "flex", flexDirection: "column", gap: "5px", ...this.props.style}}>{(this.constructor as typeof ToastContainer)._items}</div>;
     }
 }
 
-export class Toast extends React.Component {
+export type ToastProps = {
+  className?: string | undefined;
+}
+
+/** @deprecated Internal react object, could be changed at anytime without warning! */
+interface ReactInternals {
+  key: React.Key;
+};
+
+export class Toast extends React.Component<ToastProps> {
     state = {
       show: false
     };
-  
-    constructor(props) {
-      super(props);
 
-      this.onClick = this.onClick.bind(this);
+    /** @deprecated Internal react object, could be changed at anytime without warning! */
+    // @ts-ignore: No initializer and is not definitely assigned in the constructor.
+    _reactInternals: ReactInternals;
+  
+    constructor(props: Readonly<ToastProps> | ToastProps) {
+      super(props);
     }
 
-    getKey() {
+    getKey(): React.Key {
         return this._reactInternals.key;
     }
 
-    onClick() {
+    onClick = () => {
         ToastContainer.remove(this.getKey());
     }
 
