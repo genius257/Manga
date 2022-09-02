@@ -7,7 +7,7 @@ import {
   } from "react-router-dom";
 import MaterialIcon from "../../../components/MaterialIcon";
 import Poster from "../../../components/Poster";
-import ToastContainer from "../../../components/ToastContainer";
+import ToastContainer from "../../../components/ToastContainer.tsx";
 
 export default class Page extends React.Component {
     state = {

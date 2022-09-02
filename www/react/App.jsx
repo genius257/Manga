@@ -9,7 +9,7 @@ import {
 import ContextMenu from "./components/contextMenu";
 import MaterialIcon from "./components/MaterialIcon";
 import Search from "./components/Search.tsx";
-import ToastContainer from "./components/ToastContainer";
+import ToastContainer from "./components/ToastContainer.tsx";
 import Api from "./pages/Api";
 import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";

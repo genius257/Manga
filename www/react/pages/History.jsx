@@ -1,6 +1,6 @@
 import MaterialIcon from "../components/MaterialIcon";
 import React from "react";
-import ToastContainer from "../components/ToastContainer";
+import ToastContainer from "../components/ToastContainer.tsx";
 
 export default class History extends React.Component {
     state = {

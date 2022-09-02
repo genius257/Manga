@@ -6,7 +6,7 @@ import {
     Link
   } from "react-router-dom";
 import Poster from "../../components/Poster";
-import ToastContainer from "../../components/ToastContainer";
+import ToastContainer from "../../components/ToastContainer.tsx";
 
 export default class Chapter extends React.Component {
     state = {

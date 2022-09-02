@@ -7,7 +7,7 @@ import {
   } from "react-router-dom";
 import ContextMenu, { ContextMenuItem } from "../components/contextMenu";
 import Poster from "../components/Poster";
-import ToastContainer from "../components/ToastContainer";
+import ToastContainer from "../components/ToastContainer.tsx";
 
 export default class Manga extends React.Component {
     state = {
