@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "react":[
+                "./types/react.d.ts"
+            ],
+            "react-router-dom":[
+                "./types/react-router-dom.d.ts"
+            ]
+        },
+        "jsx": "preserve",
+        "typeRoots": ["./types/"],
+        "esModuleInterop": true,
+        "target": "es6",
+        "lib": ["es2016","dom"],
+
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
+        "strictPropertyInitialization": true,
+        "noImplicitThis": true,
+        "useUnknownInCatchVariables": false,
+        "alwaysStrict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "exactOptionalPropertyTypes": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": false,
+        "noUncheckedIndexedAccess": false,
+        "noImplicitOverride": false,
+        "noPropertyAccessFromIndexSignature": false,
+        "allowUnusedLabels": false,
+        "allowUnreachableCode": false,
+    }
+}
