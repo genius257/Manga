@@ -9,6 +9,10 @@
 
 #include ".\api\taadd.au3"
 
+Opt("TrayAutoPause", 0)
+Opt("TrayOnEventMode", 1)
+Opt("TrayMenuMode", 2+8)
+
 $mutex = _Singleton($_mangaSvc_mutexName, 1)
 
 If $mutex = 0 Then Exit -1
