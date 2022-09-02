@@ -103,7 +103,6 @@ export default class ToastContainer extends React.Component {
     }
     
     render() {
-        console.log('toast render. items:', this.constructor._items.length);
         return <div style={{position: "absolute", right: "30px", bottom: "10px", display: "flex", flexDirection: "column", gap: "5px", ...this.props.style}}>{this.constructor._items}</div>;
     }
 }
