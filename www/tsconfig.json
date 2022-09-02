@@ -5,6 +5,9 @@
             "react":[
                 "./types/react.d.ts"
             ],
+            "react-dom":[
+                "./types/react-dom.d.ts"
+            ],
             "react-router-dom":[
                 "./types/react-router-dom.d.ts"
             ]
