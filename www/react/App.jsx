@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import ContextMenu from "./components/contextMenu";
 import MaterialIcon from "./components/MaterialIcon";
-import Search from "./components/Search";
+import Search from "./components/Search.tsx";
 import ToastContainer from "./components/ToastContainer";
 import Api from "./pages/Api";
 import Dashboard from "./pages/Dashboard";
