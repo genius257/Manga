@@ -38,7 +38,7 @@ export default class Chapter extends React.Component {
     }
 
     loadPages(mangaId, chapterId, options = {}) {
-        options.order = options?.order ?? 0;
+        options.order = options?.order ?? 1;
         options.limit = options?.limit ?? 100;
         const query = Object.keys(options).map(option => `${option}=${encodeURIComponent(options[option])}`).join('&');
         return fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?${query}`).then(response => response.json()).then(pages => {
