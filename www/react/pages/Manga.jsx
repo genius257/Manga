@@ -91,8 +91,10 @@ export default class Manga extends React.Component {
         const imagePath = `/data/${manga?.pathId ?? ""}/${manga?.poster ?? ""}`;
         const title = manga?.name ?? "";
         const api = manga?.api ?? "";
-        return <>
+        //FIXME: source link currently will only work with taadd links! need to find source homepage from mange information.
+        return <div style={{padding: "10px"}}>
             <Poster image={imagePath} title={title} api={api} />
+            <a href={`https://taadd.com${manga.url}`} target="_blank" rel="noopener noreferrer">Source link</a>
             <table>
                 <thead>
                     <tr>
@@ -103,6 +105,6 @@ export default class Manga extends React.Component {
                     {this.state.chapters.map(chapter =><tr key={chapter.id} onContextMenu={this.onContextMenu}><td><Link to={`/manga/${chapter.manga_id}/chapter/${chapter.id}/`}>{chapter?.name}</Link></td><td>{chapter?.date_added}</td><td>{chapter?.pages_watched} of {chapter?.pages}</td></tr>)}
                 </tbody>
             </table>
-        </>
+        </div>
     }
 }
