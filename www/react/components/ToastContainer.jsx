@@ -1,4 +1,5 @@
 import React from "react";
+import MaterialIcon from "./MaterialIcon";
 //import "./ToastContainer.css";
 
 export default class ToastContainer extends React.Component {
@@ -18,7 +19,7 @@ export default class ToastContainer extends React.Component {
         this._max = max;
     }
     
-    static add(data) {
+    static add(data, className = null) {
         while (this._items.length >= this._max && this._items.length > 0) {
           this._items.shift(); //TODO: maybe use slice instead, to avoid the loop.
         }
@@ -26,7 +27,7 @@ export default class ToastContainer extends React.Component {
         if (data) {
             let key = this._AUTO_INCREMENT++;
             this._items.push(
-                <Toast key={key}>
+                <Toast key={key} className={className}>
                     {data}
                 </Toast>
             );
@@ -112,25 +113,36 @@ export class Toast extends React.Component {
       show: false
     };
   
-    /*constructor(props) {
+    constructor(props) {
       super(props);
-  
-      //Manager.
-    }*/
-  
-render() {
-    return (
-        <div
-          className="toast"
-          /*style={{
-            position: "absolute",
-            left: this.props.x,
-            top: this.props.y
-          }}*/
-        >
-          {this.props.children}
-        </div>
-      );
+
+      this.onClick = this.onClick.bind(this);
+    }
+
+    getKey() {
+        return this._reactInternals.key;
+    }
+
+    onClick() {
+        ToastContainer.remove(this.getKey());
+    }
+
+    render() {
+        const className = ["toast", this.props.className].filter(v => v).join(" ");
+
+        return (
+            <div
+            className={className}
+            /*style={{
+                position: "absolute",
+                left: this.props.x,
+                top: this.props.y
+            }}*/
+            >
+                <MaterialIcon icon="close" className="close" onClick={this.onClick} />
+                {this.props.children}
+            </div>
+        );
     }
 }
 /*
