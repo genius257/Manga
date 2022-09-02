@@ -56,7 +56,7 @@ export default class Page extends React.Component {
                     const pageIndex = page.index;
                     fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=3&offset=${pageIndex - 2}`).then(response => response.json()).then(pages => {
                         const previous = pageIndex > 1 ? pages[0] : {};
-                        const next = pages[2];
+                        const next = pageIndex > 1 ? pages[2] : pages[1];
                         this.setState({
                             previous: previous,
                             next: next
@@ -64,22 +64,24 @@ export default class Page extends React.Component {
 
                         if (next?.id === page?.index || next?.id === undefined) {
                             fetch(`/api/mangas/:${mangaId}/chapters/?limit=1&offset=${chapters[0].index}`).then(response => response.json()).then(chapters => {
-                                console.log(chapters);
-                                fetch(`/api/mangas/:${mangaId}/chapters/:${chapters[0].id}/pages/?limit=1`).then(response => response.json()).then(pages => this.setState({next: pages[0] || {}}))
-                            });
+                                if (chapters.length === 0) {
+                                    return;
+                                }
+                                fetch(`/api/mangas/:${mangaId}/chapters/:${chapters[0].id}/pages/?limit=1`).then(response => response.json()).then(pages => this.setState({next: pages[0] || {}})).catch(reason => ToastContainer.add(reason.toString(), 'error'));
+                            }).catch(reason => ToastContainer.add(reason.toString(), 'error'));
                         }
 
                         if (previous.id === page.index || previous?.id === undefined) {
                             fetch(`/api/mangas/:${mangaId}/chapters/?limit=1&offset=${chapters[0].index - 2}`).then(response => response.json()).then(chapters => {
-                                fetch(`/api/mangas/:${mangaId}/chapters/:${chapters[0].id}/pages/?limit=1&order=0`).then(response => response.json()).then(pages => this.setState({previous: pages[0]}))
-                            });
+                                fetch(`/api/mangas/:${mangaId}/chapters/:${chapters[0].id}/pages/?limit=1&order=0`).then(response => response.json()).then(pages => this.setState({previous: pages[0]})).catch(reason => ToastContainer.add(reason.toString(), 'error'));
+                            }).catch(reason => ToastContainer.add(reason.toString(), 'error'));
                         }
-                    });
-                    fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=1&order=1`).then(response => response.json()).then(pages => this.setState({first: pages[0] ?? {}}));
-                    fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=1&order=0`).then(response => response.json()).then(pages => this.setState({last: pages[0] ?? {}}));
-                });
-            });
-        });
+                    }).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+                    fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=1&order=1`).then(response => response.json()).then(pages => this.setState({first: pages[0] ?? {}})).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+                    fetch(`/api/mangas/:${mangaId}/chapters/:${chapterId}/pages/?limit=1&order=0`).then(response => response.json()).then(pages => this.setState({last: pages[0] ?? {}})).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+                }).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+            }).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
+        }).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
     }
 
     onKeydown(event) {
