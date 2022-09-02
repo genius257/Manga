@@ -65,7 +65,7 @@ export default class Chapter extends React.Component {
         return <>
             <Link to={`/manga/${this.props.match.params.mangaId}/`}><Poster image={imagePath} title={title} api={api} /></Link>
             <div style={{display: "flex", flexDirection: "row", flexWrap: "wrap", gap: "10px"}}>
-                {this.state.pages.map(page =><Link to={`/manga/${this.props.match.params.mangaId}/chapter/${page.chapter_id}/page/${page.id}/`} key={page.id}><Poster image={`/data/${this.state.manga.pathId}/${this.state.chapter.pathId}/${page.pathId}`} /></Link>)}
+                {this.state.pages.map(page =><Link to={`/manga/${this.props.match.params.mangaId}/chapter/${page.chapter_id}/page/${page.id}/`} key={page.id}><Poster image={`/data/${this.state.manga.pathId}/${this.state.chapter.pathId}/${page.pathId}`} marked={!((page?.watched??"0")==="1")} /></Link>)}
             </div>
         </>
     }
