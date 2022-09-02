@@ -6,6 +6,7 @@ import {
     Link
   } from "react-router-dom";
 import Poster from "../components/Poster";
+import ToastContainer from "../components/ToastContainer";
 
 export default class Search extends React.Component {
     state = {
@@ -22,7 +23,7 @@ export default class Search extends React.Component {
             this.updateQuery();
         }
         if (this.state.query !== prevState.query) {
-            fetch(`/api/search/?q=${this.state.query}`).then(response => response.json()).then(results => this.setState({results}));
+            fetch(`/api/search/?q=${this.state.query}`).then(response => response.json()).then(results => this.setState({results})).catch(reason => ToastContainer.add(reason.toString(), 'error'));;
         }
     }
 

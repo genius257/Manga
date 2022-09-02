@@ -6,6 +6,7 @@ import {
     Link
   } from "react-router-dom";
 import Poster from "../components/Poster";
+import ToastContainer from "../components/ToastContainer";
 
 export default class Dashboard extends React.Component {
     state = {
@@ -19,7 +20,7 @@ export default class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/api/mangas/').then(response => response.json()).then(mangas => this.setState({mangas}));
+        fetch('/api/mangas/').then(response => response.json()).then(mangas => this.setState({mangas})).catch(reason => ToastContainer.add(reason.toString(), 'error'));
     }
 
     hubSrollButtonMove(e) {

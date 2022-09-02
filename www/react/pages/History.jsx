@@ -1,5 +1,6 @@
 import MaterialIcon from "../components/MaterialIcon";
 import React from "react";
+import ToastContainer from "../components/ToastContainer";
 
 export default class History extends React.Component {
     state = {
@@ -25,7 +26,7 @@ export default class History extends React.Component {
                     fetch(`/api/mangas/:${chapter[0].manga_id}/`).then(response => response.json()).then(manga => {return {page: page[0], chapter: chapter[0], manga: manga[0], history: history};})
                 )
             )
-        ))).then(history => this.setState({history}));
+        ))).then(history => this.setState({history})).catch(reason => ToastContainer.add(reason.toString(), 'error'));
     }
 
     render() {
