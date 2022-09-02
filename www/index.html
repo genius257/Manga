@@ -30,7 +30,7 @@
     <!--<script src="https://unpkg.com/@babel/standalone@7.14.7/babel.js"></script>-->
     <script>
         Babel.registerPreset("my-preset", {
-            presets: [Babel.availablePresets["react"]],
+            presets: [Babel.availablePresets["react"], Babel.availablePresets["typescript"]],
             moduleIds: true,
             getModuleId: (name) => {
                 return 'react/index.jsx';
