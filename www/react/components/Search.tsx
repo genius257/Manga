@@ -1,39 +1,48 @@
-import { withRouter } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import React from "react";
 import { debounce } from "../helpers";
 
-class Search extends React.Component {
-    state = {
+export type SearchProps = RouteComponentProps & {
+    //
+};
+
+export type SearchState = {
+    searchString: string
+};
+
+class Search extends React.Component<SearchProps, SearchState> {
+    state:Readonly<SearchState> = {
         searchString: "",
-        value: ""
+        //value: "",
     };
 
-    constructor(props) {
+    onChangeDebounced: () => void;
+
+    constructor(props: Readonly<SearchProps> | SearchProps) {
         super(props);
-        this.onChangeDebounced = debounce(this.pushHistoryState.bind(this), 500); //used to be 250
-        this.searchChange = this.searchChange.bind(this);
+        this.onChangeDebounced = debounce(this.pushHistoryState, 500); //used to be 250
     }
 
-    componentDidMount() {
-        const searchParams = new URLSearchParams(this.props?.location?.search ?? "");
+    componentDidMount():void {
+        const searchParams = new URLSearchParams(this.props.location.search);
         this.setState({
             searchString: searchParams.get('q') ?? ''
         });
     }
-    
-    componentDidUpdate(prevProps, prevState, snapshot) {
+
+    componentDidUpdate(prevProps: Readonly<SearchProps>, prevState: Readonly<SearchState>, snapshot?: any):void {
         if (this.props.location.search !== prevProps.location.search) {
-            const searchParams = new URLSearchParams(this.props?.location?.search ?? "");
+            const searchParams = new URLSearchParams(this.props.location.search);
             this.setState({ searchString: searchParams.get('q') ?? '' });
         }
     }
     
-    searchChange = function (e) {
-        this.setState({ searchString: e.target.value });
+    searchChange = (event: React.ChangeEvent<HTMLInputElement>):void => {
+        this.setState({ searchString: event.target.value });
         this.onChangeDebounced();
     };
     
-    pushHistoryState = function () {
+    pushHistoryState = () => {
         if (this.state.searchString) {
             this.props.history.push(`/search/?q=${this.state.searchString}`);
         } else {
