@@ -44,6 +44,7 @@ Func DB_CLEANUP()
 	$hStmt = _SQLite_NextStmt($hDB)
     If @error <> 0 Then Return MsgBox(0, "", "Error: "&@error)
 	While $hStmt>0
+        ;ConsoleWrite(_sqlite_sql($hStmt)&@CRLF)
 		_SQLite_QueryFinalize($hStmt)
 		$hStmt = _SQLite_NextStmt($hDB)
 	WEnd
