@@ -52,7 +52,15 @@ function define(name, deps, callback) {
             const fileName = url.split('/').pop();
             const ext = fileName.includes('.') ? url.split('.').pop() : '';
             if (ext === '' && !url.endsWith('/')) {
-                url = url + '.jsx';
+                switch (name.split('/').pop().split('.').pop()) {
+                    case 'tsx':
+                    case 'ts':
+                        url = url + '.ts';
+                        break;
+                    default:
+                        url = url + '.jsx';
+                        break;
+                }
             }
 
             if (definitions[url]) {
