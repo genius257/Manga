@@ -55,7 +55,8 @@
                 try {
                     new URL(url);
                 } catch (e) {
-                    url = new URL(url, window.location.href).href; //FIXME: we should not use window.location.href, but only protocol, hostname and path. Query string and get parameters should be ignored.
+                    var location = window.location;
+                    url = new URL(url, `${location.protocol}//${location.hostname}${location.pathname}`).href;
                 }
                 var url = new URL(dependency, url).href;//requires us to know the url we base this call on.
                 const fileName = url.split('/').pop();
