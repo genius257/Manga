@@ -126,13 +126,17 @@ export type ToastProps = {
   className?: string | undefined;
 }
 
+export type ToastState = {
+  show: boolean,
+}
+
 /** @deprecated Internal react object, could be changed at anytime without warning! */
 interface ReactInternals {
   key: React.Key;
 };
 
-export class Toast extends React.Component<ToastProps> {
-    state = {
+export class Toast extends React.Component<ToastProps, ToastState> {
+    state: Readonly<ToastState> = {
       show: false
     };
 
