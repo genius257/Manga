@@ -33,7 +33,6 @@ export default class Search extends React.Component {
     }
 
     render() {
-        //FIXME: we need to call API to get search and display output
         return <>{this.state.results.map(manga => <Link key={manga.id} to={`/manga/${manga.id}/`}><Poster title={manga.name} api={manga.api} image={`/data/${manga?.pathId ?? ""}/${manga?.poster ?? ""}`} /></Link>)}</>;
     }
 }
