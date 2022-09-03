@@ -4,7 +4,7 @@ import MaterialIcon from "./MaterialIcon.jsx";
 //import "./ToastContainer.css";
 
 export type ToastContainerProps = {
-  style: React.DetailedHTMLProps<React.StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>,
+  style?: React.DetailedHTMLProps<React.StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>,
 };
 
 export default class ToastContainer extends React.Component<ToastContainerProps> {
