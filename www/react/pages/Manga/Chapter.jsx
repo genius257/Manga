@@ -5,7 +5,7 @@ import {
     Route,
     Link
   } from "react-router-dom";
-import Poster from "../../components/Poster";
+import Poster from "../../components/Poster.tsx";
 import ToastContainer from "../../components/ToastContainer.tsx";
 
 export default class Chapter extends React.Component {
