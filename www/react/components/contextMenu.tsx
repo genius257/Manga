@@ -56,7 +56,7 @@ export default class ContextMenuManager extends React.Component {
       this.add(null);
       const preventClick = function(event: MouseEvent) {
         event.preventDefault();
-        window.removeEventListener("click", preventClick, true); //FIXME: add setTimeout to check mouse button status (if mousedown in browser and mouse up outside of browser and remove event listner if true)
+        window.removeEventListener("click", preventClick, true);
       };
       window.addEventListener("click", preventClick, true);
     } else {
@@ -68,7 +68,7 @@ export default class ContextMenuManager extends React.Component {
       }
       const removeContextMenu = (event: MouseEvent) => {
         this.add(null);
-        window.removeEventListener("click", removeContextMenu, false); //FIXME: add setTimeout to check mouse button status (if mousedown in browser and mouse up outside of browser and remove event listner if true)
+        window.removeEventListener("click", removeContextMenu, false);
       };
       window.addEventListener("click", removeContextMenu, false);
     }
