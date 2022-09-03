@@ -75,6 +75,13 @@ function define(name, deps, callback) {
                 .then(response => response.text());
 
             if (ext === "css") {
+                if (definitions[url] === undefined) {
+                    definitions[url] = true;
+                    const link = document.createElement("link");
+                    link.href = url;
+                    link.rel = "stylesheet";
+                    document.head.appendChild(link);
+                }
                 promise
                     .then(css => console.log(css));
             } else {
