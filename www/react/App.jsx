@@ -6,7 +6,7 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import ContextMenu from "./components/contextMenu";
+import ContextMenu from "./components/contextMenu.tsx";
 import MaterialIcon from "./components/MaterialIcon";
 import Search from "./components/Search.tsx";
 import ToastContainer from "./components/ToastContainer.tsx";
