@@ -135,6 +135,7 @@ function define(name, deps, callback) {
             .then(body => Babel.transform(body, {
                     presets: [
                         'react',
+                        'typescript'
                     ],
                     plugins: [
                         'proposal-dynamic-import',
