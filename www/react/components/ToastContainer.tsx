@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import MaterialIcon from "./MaterialIcon.jsx";
-//import "./ToastContainer.css";
+import "./ToastContainer.css";
 
 export type ToastContainerProps = {
   style?: React.DetailedHTMLProps<React.StyleHTMLAttributes<HTMLStyleElement>, HTMLStyleElement>,
