@@ -51,8 +51,6 @@
                     });
                 }
 
-                //FIXME: we need to check if the required resource is cached in the "definitions" object and return it if it is, to save on resources.
-
                 var url = name;
                 try {
                     new URL(url);
