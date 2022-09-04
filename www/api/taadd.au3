@@ -53,7 +53,6 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
         ConsoleWrite('<a href=".'&StringMid($REQUEST_URI, 6)&'/subscribe/">subscribe</a>')
         ConsoleWrite('<img src="'&$posterImage&'"/>')
         ;ConsoleWrite(__HTMLParser_GetString(__doublyLinkedList_Node($aTables[2]).data))
-        ;FIXME: we need to add a innerHTML/innerText getter
         ConsoleWrite("</body></html>")
     EndIf
 Else
