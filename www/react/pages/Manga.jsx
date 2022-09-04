@@ -91,7 +91,6 @@ export default class Manga extends React.Component {
         const imagePath = `/data/${manga?.pathId ?? ""}/${manga?.poster ?? ""}`;
         const title = manga?.name ?? "";
         const api = manga?.api ?? "";
-        //FIXME: source link currently will only work with taadd links! need to find source homepage from mange information.
         return <div style={{padding: "10px"}}>
             <Poster image={imagePath} title={title} api={api} />
             <a href={`https://taadd.com${manga.url}`} target="_blank" rel="noopener noreferrer">Source link</a>
