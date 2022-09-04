@@ -34,7 +34,7 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
     If StringRight($REQUEST_URI, 11) = "/subscribe/" Then
         _mangaSvc_Subscribe("taadd", StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11))
         ConsoleWrite(StringFormat('<html><head><meta http-equiv="refresh" content="3;url=/api/taadd%s" /></head><body>', StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11)))
-        ConsoleWrite("Subscribed.");FIXME: we should do a check, to make sure the subsribe request was accurly successfull, before informing the end user.
+        ConsoleWrite("Subscribed.")
         ConsoleWrite("</body></html>")
     Else
         ConsoleWrite("<html><head></head><body>")
