@@ -1,18 +1,22 @@
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import React from "react";
 import { debounce } from "../helpers";
+import { Location } from "types/history/index";
 
 export type SearchProps = RouteComponentProps & {
     //
 };
 
 export type SearchState = {
-    searchString: string
+    searchString: string,
+    /** The address of the page initiating the search */
+    referer: Location|null,
 };
 
 class Search extends React.Component<SearchProps, SearchState> {
     state:Readonly<SearchState> = {
         searchString: "",
+        referer: null,
         //value: "",
     };
 
@@ -44,9 +48,23 @@ class Search extends React.Component<SearchProps, SearchState> {
     
     pushHistoryState = () => {
         if (this.state.searchString) {
+            if (this.state.referer === null) {
+                this.setState({
+                    referer: this.props.history.location
+                });
+            }
             this.props.history.push(`/search/?q=${this.state.searchString}`);
         } else {
-            this.props.history.push("/"); //FIXME: we could save the history path from before the search state was pushed and restore it here, with / as a fallback
+            if (this.state.referer === null) {
+                this.props.history.push("/");
+                return;
+            }
+
+            const referer = this.state.referer;
+            this.setState({
+                referer: null,
+            });
+            this.props.history.push(referer);
         }
     };
     
