@@ -92,8 +92,10 @@
                         link.rel = "stylesheet";
                         document.head.appendChild(link);
                     }
+                    /*
                     promise
                         .then(css => console.log(css));
+                    */
                 } else {
                     promise = promise
                         .then(body => Babel.transform(body, {
