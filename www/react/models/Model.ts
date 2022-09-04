@@ -27,7 +27,7 @@ export default class Model {
     }
 
     getAttributeFromArray(key: string) {
-        return this.getAttributes()[key] || null;//FIXME: ?? null
+        return this.getAttributes()[key] ?? null;
     }
 
     getAttributes() {
