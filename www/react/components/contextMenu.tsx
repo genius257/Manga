@@ -13,7 +13,8 @@ export default class ContextMenuManager extends React.Component {
   static _AUTO_INCREMENT = 0;
 
   //FIXME: setting _max > 1 results in bad handling when removing context menu
-  static _max: number = 1; //the max ammount of context menus allowed at the same time.
+  /** the max ammount of context menus allowed at the same time. */
+  static _max: number = 1;
 
   static setMax(max: number) {
     this._max = max;
