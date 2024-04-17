@@ -81,7 +81,7 @@ Func MyHandler($hSocket, $sRequest)
 
     $sLocalPath = _WinAPI_GetFullPathName($sRootDir & "\api\" & $aUrl[0] & ".au3")
     if Not FileExists($sLocalPath) Then
-        _HTTP_SendHeaders($hSocket)
+        _HTTP_SendHeaders($hSocket, "404 Not Found")
         _HTTP_SendContent($hSocket, "API NOT FOUND")
         Return
     EndIf
