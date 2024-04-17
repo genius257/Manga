@@ -1,5 +1,11 @@
 #include <Array.au3>
 #include "..\..\lib\sqlite3.au3"
+$__g_hPrintCallback_SQLite = SQLite_CustonPrint
+
+Global $sqlite_messagelog = ""
+Func SQLite_CustonPrint($sText)
+    $sqlite_messagelog &= $sText
+EndFunc
 
 $REQUEST_URI = EnvGet("REQUEST_URI")
 ;; $aREQUEST_URI = StringRegExp($REQUEST_URI, "^(?:/:([0-9]+))?/?$", 1)
@@ -21,7 +27,6 @@ If Not IsArray($aREQUEST_URI) Then
     Exit
 EndIf
 ConsoleWrite("Content-type: application/json; charset=UTF-8"&@LF)
-ConsoleWrite(@LF)
 
 Global $sBefore = ""
 Global $sAfter = ""
@@ -50,6 +55,7 @@ Next
 _SQLite_Startup(@ScriptDir&"\..\..\mangaSvc\sqlite3.dll", False, 1)
 Global Const $sDatabase = @ScriptDir & "\..\..\mangaSvc\database.sqlite3"
 If Not FileExists($sDatabase) Then
+    ConsoleWrite(@LF)
     ConsoleWrite("[]")
     Exit
 EndIf
@@ -119,6 +125,14 @@ _SQLite_Bind_Int($hQuery, $i, $iOffset)
 $i+=1
 _SQLite_Bind_Int($hQuery, $i, $iLimit)
 
+If Not ($sqlite_messagelog = "") Then
+    ConsoleWrite("Status: 500 Internal Server Error"&@LF)
+    ConsoleWrite(@LF)
+    ConsoleWrite('{"error": "'&StringRegExpReplace(StringRegExpReplace($sqlite_messagelog, '["\\]', '\$0'), '\R', '\\n')&'"}')
+    Exit
+EndIf
+
+ConsoleWrite(@LF)
 ConsoleWrite("[")
 Local $columns = Null
 Local $aRow, $aRows[0]
