@@ -5,6 +5,7 @@
 #include <SendMessage.au3>
 #include <WinAPISysWin.au3>
 #include <GuiEdit.au3>
+#include <WinAPIFiles.au3>
 
 Global Const $tagCOPYDATASTRUCT = "ULONG_PTR dwData;DWORD cbData;PTR lpData;"
 Global Const $ERROR_FILE_NOT_FOUND = 0x2
@@ -57,7 +58,8 @@ Func _mangaSvc_Run()
             If $i > 20 Then Return SetError(1, 1, False)
         WEnd
     EndIf
-    Run(StringFormat('"%s\autoit-v3.3.14.5\AutoIt3%s.exe" "%s\mangaSvc\main.au3"', $sPath, @AutoItX64 ? "_x64" : "", $sPath))
+    Local Static $sAu3Path = _WinAPI_GetFullPathName(IniRead($sPath & "\settings.ini", "AU3", "Path", 'C:\Program Files (x86)\AutoIt3'))
+    Run(StringFormat('"%s\AutoIt3%s.exe" "%s\mangaSvc\main.au3"', $sAu3Path, @AutoItX64 ? "_x64" : "", $sPath))
     If @error <> 0 Then Return SetError(@error, @extended, False)
     Return True
 EndFunc
