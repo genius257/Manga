@@ -2,6 +2,7 @@
 
 FileChangeDir(@ScriptDir); Fixes issue with relative paths in settings.ini when current working directory of the process is different from @ScriptDir
 
+#include "lib\sqlite3.au3"
 #include "Server.au3"
 
 Opt("WinWaitDelay", 10)
@@ -11,6 +12,31 @@ Opt("TrayOnEventMode", 1)
 Opt("TrayMenuMode", 2+8)
 
 ;TODO: add server gui
+
+;setup database for first time usage.
+If Not FileExists(@ScriptDir&"/mangaSvc/database.sqlite3") Then
+    _SQLite_Startup(@ScriptDir&"/mangaSvc/sqlite3.dll", False, 1)
+    If @error <> 0 Then
+        ConsoleWriteError("_SQLite_Startup failed!"&@CRLF)
+        Exit 1
+    EndIf
+    Global $hDatabase = _SQLite_Open(@ScriptDir&"/mangaSvc/database.sqlite3")
+    If @error <> 0 Then
+        ConsoleWriteError("_SQLite_Open failed!"&@CRLF)
+        Exit 1
+    EndIf
+    _SQLite_Exec($hDatabase, "CREATE TABLE manga (id INTEGER PRIMARY KEY, api TEXT, url TEXT, pathId TEXT, name TEXT, poster TEXT, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
+    _SQLite_Exec($hDatabase, "CREATE TABLE chapter (id INTEGER PRIMARY KEY, manga_id INTEGER, name TEXT, pathId TEXT, date_added TEXT, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
+    _SQLite_Exec($hDatabase, "CREATE TABLE page (id INTEGER PRIMARY KEY, chapter_id INTEGER, name TEXT, pathId TEXT, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
+    _SQLite_Exec($hDatabase, "CREATE TABLE history (id INTEGER PRIMARY KEY, page_id INTEGER, created_at INTEGER DEFAULT (strftime('%s', 'now')) NOT NULL, updated_at INTEGER, deleted_at INTEGER)")
+
+    _SQLite_Exec($hDatabase, "CREATE UNIQUE INDEX history_page_id_unique ON history (page_id);")
+    _SQLite_Exec($hDatabase, "CREATE INDEX page_chapter_id_index ON page (chapter_id);")
+    _SQLite_Exec($hDatabase, "CREATE INDEX chapter_manga_id_index ON chapter (manga_id);")
+
+    _SQLite_Close($hDatabase)
+	_SQLite_Shutdown()
+EndIf
 
 LoadSettings()
 
