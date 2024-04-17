@@ -1,5 +1,7 @@
 #AutoIt3Wrapper_Icon=logo.ico
 
+FileChangeDir(@ScriptDir); Fixes issue with relative paths in settings.ini when current working directory of the process is different from @ScriptDir
+
 #include "Server.au3"
 
 Opt("WinWaitDelay", 10)
