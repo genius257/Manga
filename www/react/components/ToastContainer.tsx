@@ -36,7 +36,7 @@ export default class ToastContainer extends React.Component<ToastContainerProps>
             let key = this._AUTO_INCREMENT++;
             this._items.push(
                 <Toast key={key} className={className ?? undefined}>
-                    {data}
+                    <pre>{data}</pre>
                 </Toast>
             );
         }
