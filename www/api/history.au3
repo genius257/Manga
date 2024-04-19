@@ -31,12 +31,12 @@ For $sQuery In $aQuery
     EndSwitch
 Next
 
-_SQLite_Startup(@ScriptDir&"\..\..\mangaSvc\sqlite3.dll", False, 1)
 Global Const $sDatabase = @ScriptDir & "\..\..\mangaSvc\database.sqlite3"
 If Not FileExists($sDatabase) Then
     ConsoleWrite("[]")
     Exit
 EndIf
+_SQLite_Startup(@ScriptDir&"\..\..\mangaSvc\sqlite3.dll", False, 1)
 Global Const $hDB = _SQLite_Open($sDatabase)
 
 Func DB_CLEANUP()
