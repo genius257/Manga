@@ -95,7 +95,7 @@ Func _HTTP_Server_Start()
 
             $sNewData = BinaryToString($sNewData) ; Receives a whole lot of data if possible
 
-            Debug(VarGetType($sNewData)&"("&StringLen($sNewData)&"): "&$sNewData)
+            if (StringLen($sNewData)>0) Then Debug(VarGetType($sNewData)&"("&StringLen($sNewData)&"): "&$sNewData)
             $sBuffer[$x] &= $sNewData ;store it in the buffer
 
             If StringInStr(StringStripCR($sBuffer[$x]),@LF&@LF) Then ; if the request headers are ready ..
@@ -106,8 +106,9 @@ Func _HTTP_Server_Start()
                 ContinueLoop
             EndIf
 
-            Debug("Starting processing request on position: "&$x)
+            If (StringLen($sBuffer[$x])>0) Then Debug("Starting processing request on position: "&$x)
 
+            Assign("x", $x, $ASSIGN_FORCEGLOBAL + $ASSIGN_EXISTFAIL)
             $_HTTP_Server_Request_Handler($aSocket[$x], $sBuffer[$x])
 
             TCPCloseSocket($aSocket[$x])
@@ -123,7 +124,7 @@ Func _HTTP_SendHeaders($hSocket, $headers = "", $status = $HTTP_STATUS_200)
     $headers = _HTTP_MergeHttpHeaders( _
         "HTTP/1.1 " & $status & @LF & _
         "Server: " & $sServerName & @LF & _
-        "Connection: Keep-Alive" & @LF & _
+        "Connection: close" & @LF & _
         "Content-Type: text/plain; charset=UTF-8" & @LF, _
         $headers _
     )
@@ -137,6 +138,9 @@ Func _HTTP_SendContent($hSocket, $bData)
     If Not IsBinary($bData) Then $bData = Binary($bData)
     While BinaryLen($bData) ; Send data in chunks (most code by Larry)
         $a = TCPSend($hSocket, $bData) ; TCPSend returns the number of bytes sent
+        If @error <> 0 Then
+            Return;FIXME: if client disconnects early this line is needed, to avoid endless loop, but need to check "Windows Sockets Error Codes" for potential non exitloop issues, like BUSY state.
+        EndIf
         $bData = BinaryMid($bData, $a+1, BinaryLen($bData)-$a)
     WEnd
 EndFunc
@@ -163,7 +167,7 @@ Func _HTTP_SendFile($hSocket, $sFileLoc, $sMimeType = Default, $sReply = "200 OK
     EndIf
 
     $hFile = FileOpen($sFileLoc,16)
-    $bFileData = FileRead($hFile)
+    Local $bFileData = FileRead($hFile)
     FileClose($hFile)
 
     If $bLastModified Then $aFileLastModified = FileGetTime($sFileLoc, 0, 0)
@@ -176,18 +180,18 @@ EndFunc
 #ce
 Func _HTTP_SendData($hSocket, $bData, $sMimeType, $sReply = $HTTP_STATUS_200, $sLastModified = ""); FIXME: currently no headers are sent!
     Local $a
-    Local $sPacket = Binary("HTTP/1.1 " & $sReply & @CRLF & _
-    "Server: " & $sServerName & @CRLF & _
-    "Connection: Keep-Alive" & @CRLF & _
-    "Content-Lenght: " & BinaryLen($bData) & @CRLF & _
-    "Content-Type: " & $sMimeType & "; charset=UTF-8" & @CRLF & _
-    (($sLastModified="")?"":"Last-Modified: "&$sLastModified&@CRLF)& _
-    @CRLF)
+    Local $sPacket = Binary("HTTP/1.1 " & $sReply & @LF & _
+    "Server: " & $sServerName & @LF & _
+    "Connection: close" & @LF & _
+    "Content-Length: " & BinaryLen($bData) & @LF & _
+    "Content-Type: " & $sMimeType & "; charset=UTF-8" & @LF & _
+    (($sLastModified="")?"":"Last-Modified: "&$sLastModified&@LF)& _
+    @LF)
     ;[set non-blocking mode]
-    Local $aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x8004667E, 'ulong*', 1)
-    Local $aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x4010, 'ulong*', 1);IPX_IMMEDIATESPXACK
+    ;Local $aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x8004667E, 'ulong*', 1)
+    ;Local $aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x4010, 'ulong*', 1);IPX_IMMEDIATESPXACK
 
-    $tBuffer = DllStructCreate("BYTE[1024]")
+    $tBuffer = DllStructCreate("BYTE[1000000]")
     DllStructSetData($tBuffer, 1, $sPacket)
 
     $aResult = DllCall("ws2_32.dll", 'int', 'send', 'int', $hSocket, 'struct*', $tBuffer, 'int', BinaryLen($sPacket), 'int', 0)
@@ -202,7 +206,7 @@ Func _HTTP_SendData($hSocket, $bData, $sMimeType, $sReply = $HTTP_STATUS_200, $s
     WEnd
 
     ;[set blocking mode]
-    $aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x8004667E, 'ulong*', 0)
+    ;$aResult = DllCall("ws2_32.dll", 'int', 'ioctlsocket', 'int', $hSocket, 'long', 0x8004667E, 'ulong*', 0)
 
     ;$sPacket = Binary(@CRLF & @CRLF) ; Finish the packet
     ;TCPSend($hSocket,$sPacket)
@@ -483,8 +487,8 @@ Func _HTTP_CGI($sAppName, $sCommand = Null)
                         $l = StringRegExp($sBuffer, "\r?\n\r?\n", 1)
                         $i = @extended
                         $l = StringLen($l[0])
-                        _HTTP_SendHeaders($aSocket[$x], "Transfer-Encoding: chunked"&@CRLF&StringLeft($sBuffer, $i-3))
-                        _HTTP_SendChunk($aSocket[$x], StringMid($sBuffer, $i))
+                        _HTTP_SendHeaders($aSocket[$x], "Cache-Control: no-store, max-age=0"&@LF&"Transfer-Encoding: chunked"&@LF&StringLeft($sBuffer, $i-3))
+                        if StringLen($sBuffer) > $i Then _HTTP_SendChunk($aSocket[$x], StringMid($sBuffer, $i))
                         $sBuffer = Null; to try and free up some space
                     EndIf
                 EndIf
@@ -662,8 +666,8 @@ Func _HTTP_Server_Request_Handle($hSocket, $sRequest)
                             ContinueCase
                         EndIf
                     Case FileExists($sLocalPath) ; makes sure the file that the user wants exists
-                        $iFileType = StringInStr($sLocalPath, ".", 0, -1)
-                        $sFileType = $iFileType>0 ? StringMid($sLocalPath,$iFileType+1) : ""
+                        Local $iFileType = StringInStr($sLocalPath, ".", 0, -1)
+                        Local $sFileType = $iFileType>0 ? StringMid($sLocalPath,$iFileType+1) : ""
                         If $sFileType = "php" And Not $PHP_Path = "" Then
                             _HTTP_GCI_PHP()
                         ElseIf $sFileType = "au3" And Not $AU3_Path = "" Then
