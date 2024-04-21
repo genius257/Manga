@@ -33,8 +33,12 @@ If (StringLeft($REQUEST_URI, 6) = "/book/") Then
 
     If StringRight($REQUEST_URI, 11) = "/subscribe/" Then
         _mangaSvc_Subscribe("taadd", StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11))
-        ConsoleWrite(StringFormat('<html><head><meta http-equiv="refresh" content="3;url=/api/taadd%s" /></head><body>', StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11)))
-        ConsoleWrite("Subscribed.")
+        If @error <> 0 Then
+            ConsoleWrite('<html><head></head><body>Failed to subscribe. The service process could not be contacted.')
+        Else
+            ConsoleWrite(StringFormat('<html><head><meta http-equiv="refresh" content="3;url=/api/taadd%s" /></head><body>', StringMid($REQUEST_URI, 1, StringLen($REQUEST_URI)-11)))
+            ConsoleWrite("Subscribed.")
+        EndIf
         ConsoleWrite("</body></html>")
     Else
         ConsoleWrite("<html><head></head><body>")
